@@ -432,6 +432,8 @@ body {
 
     <div class="cookie-tray" id="cookieTray"></div>
 
+    <div id="iosDebug" style="position:fixed;bottom:0;left:0;right:0;background:rgba(255,0,0,0.8);color:#fff;font-size:12px;padding:4px;z-index:99999;text-align:center;font-family:monospace;"></div>
+
     <div class="game-buttons">
       <button class="btn btn-blue btn-small" onclick="speakWord()">🔈 听发音</button>
       <button class="btn btn-lavender btn-small" onclick="exitGame()">🏠 退出</button>
@@ -769,6 +771,12 @@ function renderWord() {
   });
 
   // DO NOT auto-speak - requires user gesture on mobile
+
+  // iOS debug: show render info
+  const dbg = document.getElementById('iosDebug');
+  if (dbg) {
+    dbg.textContent = `cookies:${cookieTray.children.length} slots:${document.getElementById('trayArea').children.length} word:${state.currentWord}`;
+  }
 
   // Force reflow for iOS Safari (fixes invisible flex children bug)
   void cookieTray.offsetHeight;
