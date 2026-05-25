@@ -2,12 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cinnamoroll's Cloud Bakery 🐾 玉桂狗的云朵烘焙坊</title>
 <style>
 /* ===================== RESET & FONTS ===================== */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-tap-highlight-color: transparent; }
 :root {
   --blue: #A8D8EA; --pink: #FFC8DD; --lavender: #CDB4DB;
   --cream: #FFF5E4; --yellow: #FFE5B4; --white: #FFF;
@@ -17,12 +18,13 @@
 body {
   font-family: 'Baloo 2', 'PingFang SC', 'Microsoft YaHei', cursive, sans-serif;
   background: linear-gradient(180deg, #B8DFF0 0%, #E8D5F5 50%, #FFF5E4 100%);
-  min-height: 100vh; overflow-x: hidden; color: var(--text);
+  min-height: 100vh; min-height: 100dvh; overflow-x: hidden; color: var(--text);
   user-select: none; -webkit-user-select: none; touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===================== CLOUD BACKGROUND ===================== */
-.clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; height: 100vh; pointer-events: none; z-index: 0; }
 .cloud {
   position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%;
   animation: floatCloud linear infinite;
@@ -47,8 +49,8 @@ body {
 
 /* ===================== MAIN CONTAINER ===================== */
 .container {
-  max-width: 480px; margin: 0 auto; padding: 10px 16px 20px;
-  position: relative; z-index: 1; min-height: 100vh;
+  max-width: 480px; margin: 0 auto; padding: 8px 12px 16px;
+  position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh;
   display: flex; flex-direction: column;
 }
 
@@ -78,9 +80,11 @@ body {
   border: none; border-radius: 25px; padding: 12px 36px;
   cursor: pointer; transition: all 0.2s; position: relative;
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
 .btn:active { transform: translateY(0); }
+@media (hover: none) { .btn:hover { transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.12); } }
 .btn-blue { background: var(--blue); color: var(--white); }
 .btn-pink { background: var(--pink); color: var(--text); }
 .btn-lavender { background: var(--lavender); color: var(--white); }
@@ -119,7 +123,7 @@ body {
 }
 
 /* ===================== GAME SCREEN ===================== */
-#gameScreen { gap: 10px; }
+#gameScreen { gap: 8px; }
 
 /* Status bar */
 .status-bar {
@@ -235,18 +239,17 @@ body {
   background: linear-gradient(135deg, #F5D5A0 0%, #E8C07A 100%);
   color: #6B4226; font-size: 22px; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  cursor: grab; box-shadow: 0 3px 6px rgba(0,0,0,0.12), inset 0 -2px 3px rgba(0,0,0,0.1);
-  transition: all 0.2s; position: relative; touch-action: none;
+  cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.12), inset 0 -2px 3px rgba(0,0,0,0.1);
+  transition: all 0.15s; position: relative;
   border: 2px solid rgba(139,90,43,0.2);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .cookie::after {
   content: ''; position: absolute; width: 40px; height: 20px;
   background: rgba(255,255,255,0.3); border-radius: 50%;
   top: 6px; pointer-events: none;
 }
-.cookie:hover { transform: scale(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.18); }
-.cookie:active { cursor: grabbing; }
-.cookie.dragging { opacity: 0.5; transform: scale(0.9); }
+.cookie:active { transform: scale(0.9); background: linear-gradient(135deg, #E8C07A 0%, #D4A65A 100%); }
 .cookie.used {
   opacity: 0.3; pointer-events: none; transform: scale(0.85);
 }
@@ -326,12 +329,44 @@ body {
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 400px) {
-  .container { padding: 8px 12px 16px; }
-  .title-cinnamoroll { font-size: 60px; }
-  .title-shop h1 { font-size: 22px; }
-  .cookie { width: 42px; height: 42px; font-size: 18px; }
-  .tray-slot { width: 42px; height: 42px; font-size: 24px; }
-  .btn { font-size: 16px; padding: 10px 24px; }
+  .container { padding: 6px 8px 12px; }
+  .title-cinnamoroll { font-size: 50px; }
+  .title-shop h1 { font-size: 20px; }
+  .title-shop p { font-size: 11px; }
+  .cookie { width: 44px; height: 44px; font-size: 19px; }
+  .tray-slot { width: 44px; height: 44px; font-size: 22px; }
+  .btn { font-size: 15px; padding: 10px 20px; }
+  .btn-small { font-size: 13px; padding: 7px 16px; }
+  .customer-emoji { font-size: 28px; }
+  .customer-text { font-size: 17px; letter-spacing: 3px; }
+  .customer-bubble { padding: 12px 16px; min-width: 140px; }
+  .cookie-tray { gap: 6px; padding: 8px; }
+  .tray-area { gap: 6px; padding: 8px; }
+  .status-bar { padding: 6px 12px; font-size: 13px; }
+  .cinna-character { font-size: 48px; }
+  .result-card { padding: 24px 16px; }
+  .level-grid { gap: 8px; }
+  .level-card { padding: 12px 8px; border-radius: 16px; }
+  .level-emoji { font-size: 30px; }
+  .level-name { font-size: 12px; }
+}
+
+@media (max-width: 350px) {
+  .cookie { width: 38px; height: 38px; font-size: 17px; }
+  .tray-slot { width: 38px; height: 38px; font-size: 20px; }
+  .cookie-tray { gap: 4px; padding: 6px; }
+  .tray-area { gap: 4px; padding: 6px; }
+}
+
+@media (max-height: 600px) {
+  .title-cinnamoroll { font-size: 40px; }
+  .title-shop h1 { font-size: 18px; }
+  .cinna-character { font-size: 40px; }
+  .customer-emoji { font-size: 24px; }
+  .customer-text { font-size: 16px; }
+  .customer-bubble { padding: 8px 14px; }
+  #gameScreen { gap: 4px; }
+  .status-bar { padding: 4px 10px; font-size: 12px; }
 }
 </style>
 </head>
@@ -609,7 +644,7 @@ function showShop() { renderShop(); showScreen('shopScreen'); }
 function showParent() { renderParent(); showScreen('parentScreen'); }
 
 function showLevel() {
-  renderLevels(); showScreen('levelScreen');
+  unlockSpeech(); renderLevels(); showScreen('levelScreen');
 }
 
 // ==================== LEVEL RENDER ====================
@@ -688,18 +723,10 @@ function renderWord() {
 
   const cookieTray = document.getElementById('cookieTray');
   cookieTray.innerHTML = allLetters.map((l, i) =>
-    `<div class="cookie" id="cookie${i}" data-letter="${l}"
-          draggable="true"
-          onclick="tapCookie('cookie${i}')"
-          ondragstart="dragStart(event, 'cookie${i}')"
-          ondragend="dragEnd(event, 'cookie${i}')">${l}</div>`
+    `<div class="cookie" id="cookie${i}" data-letter="${l}" onclick="tapCookie('cookie${i}')">${l}</div>`
   ).join('');
 
-  // Remove touch handlers that block click on mobile
-  // (touchstart with preventDefault blocks onclick)
-  // Click alone works on both desktop and mobile.
-
-  // Setup drop targets
+  // Setup drop targets (desktop drag support retained as enhancement)
   tray.querySelectorAll('.tray-slot').forEach(slot => {
     slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('hint'); });
     slot.addEventListener('dragleave', () => slot.classList.remove('hint'));
@@ -724,7 +751,7 @@ function renderWord() {
     });
   });
 
-  // DO NOT auto-speak - requires user gesture
+  // DO NOT auto-speak - requires user gesture on mobile
 }
 
 function getDistractors(used, count) {
@@ -734,7 +761,7 @@ function getDistractors(used, count) {
   return shuffled.slice(0, count);
 }
 
-// ==================== TOUCH & DRAG (Desktop) ====================
+// ==================== TOUCH & DRAG (Desktop only — kept as enhancement) ====================
 function dragStart(e, cookieId) {
   e.dataTransfer.setData('text/plain', cookieId);
   document.getElementById(cookieId)?.classList.add('dragging');
@@ -743,7 +770,7 @@ function dragEnd(e, cookieId) {
   document.getElementById(cookieId)?.classList.remove('dragging');
 }
 
-// ==================== TAP TO PLACE (Works on ALL devices) ====================
+// ==================== TAP TO PLACE (Primary interaction for ALL devices) ====================
 function tapCookie(cookieId) {
   const cookie = document.getElementById(cookieId);
   if (!cookie || cookie.classList.contains('used')) return;
@@ -908,29 +935,45 @@ function playSound(type) {
   } catch(_) {}
 }
 
-// ==================== SPEECH (Simplified & Robust) ====================
-function speakWord() {
-  if (!state.currentWord) return;
-  // Cancel any ongoing speech first
-  window.speechSynthesis.cancel();
-  // Some browsers need a brief pause after cancel
-  setTimeout(() => {
-    const u = new SpeechSynthesisUtterance(state.currentWord);
-    u.lang = 'en-US';
-    u.rate = 0.7;
-    u.pitch = 1.1;
-    u.volume = 1.0;
-    // Try to pick an English voice
-    const voices = window.speechSynthesis.getVoices();
-    const enVoice = voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) u.voice = enVoice;
-    // Wake up audio context if suspended (mobile Safari)
-    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
-    window.speechSynthesis.speak(u);
-  }, 200);
+// ==================== SPEECH (Mobile-robust) ====================
+let _speechUnlocked = false;
+function unlockSpeech() {
+  if (_speechUnlocked) return;
+  _speechUnlocked = true;
+  // Warm up speech synthesis with a silent utterance
+  const u = new SpeechSynthesisUtterance('');
+  u.volume = 0;
+  u.rate = 1;
+  window.speechSynthesis.speak(u);
+  // Also unlock audio context
+  try { getAudioCtx(); } catch(_) {}
 }
 
-// Pre-load voices on first user gesture
+function speakWord() {
+  if (!state.currentWord) return;
+  unlockSpeech();
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+  // iOS needs a delay after cancel
+  setTimeout(() => {
+    // Ensure voices are loaded
+    const voices = window.speechSynthesis.getVoices();
+    const u = new SpeechSynthesisUtterance(state.currentWord);
+    u.lang = 'en-US';
+    u.rate = 0.75;
+    u.pitch = 1.1;
+    u.volume = 1.0;
+    const enVoice = voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) u.voice = enVoice;
+    // Resume if paused (iOS can pause after cancel)
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+    window.speechSynthesis.speak(u);
+  }, 300);
+}
+
+// Pre-load voices
 window.speechSynthesis.getVoices();
 window.speechSynthesis.onvoiceschanged = () => {
   window.speechSynthesis.getVoices();
