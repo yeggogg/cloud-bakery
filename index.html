@@ -6,7 +6,8 @@
 <title>Cinnamoroll's Cloud Bakery 🐾 玉桂狗的云朵烘焙坊</title>
 <style>
 /* ===================== RESET & FONTS ===================== */
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap');
+/* Google Fonts disabled — blocked in CN WeChat, causes blank screen */
+/* Use system fonts instead: PingFang SC (iOS), Microsoft YaHei (Win), system-ui (Android) */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-tap-highlight-color: transparent; }
 :root {
@@ -16,7 +17,7 @@ html { -webkit-tap-highlight-color: transparent; }
   --green: #A8E6CF; --red: #FF8A80;
 }
 body {
-  font-family: 'Baloo 2', 'PingFang SC', 'Microsoft YaHei', cursive, sans-serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
   background: linear-gradient(180deg, #B8DFF0 0%, #E8D5F5 50%, #FFF5E4 100%);
   min-height: 100vh; overflow-x: hidden; color: var(--text);
   user-select: none; -webkit-user-select: none; touch-action: manipulation;
@@ -1064,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ready!
 });
 </script>
+  <!-- Hidden TTS audio element for WeChat/Android/iOS compatibility -->
+  <audio id="ttsAudio" preload="none" style="display:none"></audio>
 </body>
-<!-- Hidden TTS audio element for WeChat/Android/iOS compatibility -->
-<audio id="ttsAudio" preload="none" style="display:none"></audio>
 </html>
