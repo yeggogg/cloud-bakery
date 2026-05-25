@@ -933,40 +933,22 @@ function playSound(type) {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
     o.connect(g); g.connect(ctx.destination);
-    g.gain.value = 0.12;
+    g.gain.value = 0.3;
     if (type === 'correct') { o.frequency.value = 660; o.type = 'sine'; o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.3); o.stop(ctx.currentTime+0.3); }
     else if (type === 'error') { o.frequency.value = 220; o.type = 'square'; o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.25); o.stop(ctx.currentTime+0.25); }
   } catch(_) {}
 }
 
 // ==================== SPEECH (Android-compatible) ====================
-let _voicesReady = false;
-let _voices = [];
-
-// Pre-load voices aggressively
-function loadVoices() {
-  _voices = window.speechSynthesis.getVoices();
-  if (_voices.length > 0) { _voicesReady = true; return; }
-  // On Android, voices load asynchronously
-  window.speechSynthesis.onvoiceschanged = () => {
-    _voices = window.speechSynthesis.getVoices();
-    if (_voices.length > 0) _voicesReady = true;
-  };
-}
-loadVoices();
 
 function speakWord() {
   if (!state.currentWord) return;
   if (!window.speechSynthesis) return;
   
-  // Re-load voices (Android may need it)
-  if (!_voicesReady || _voices.length === 0) {
-    _voices = window.speechSynthesis.getVoices();
-    if (_voices.length > 0) _voicesReady = true;
+  // Only cancel if already speaking, not every time (Android fix)
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
   }
-  
-  // Cancel any pending speech immediately
-  window.speechSynthesis.cancel();
   
   const word = state.currentWord;
   const u = new SpeechSynthesisUtterance(word);
@@ -975,25 +957,17 @@ function speakWord() {
   u.pitch = 1.0;
   u.volume = 1.0;
   
-  // Pick a LOCAL (offline) English voice for reliability
-  if (_voices.length > 0) {
-    // Prefer localService (offline) British voice
-    let enVoice = _voices.find(v => v.lang === 'en-GB' && v.localService);
-    if (!enVoice) enVoice = _voices.find(v => v.lang.startsWith('en') && v.localService);
-    if (!enVoice) enVoice = _voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) u.voice = enVoice;
+  // Try to assign a voice (offline preferred, works on Android)
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    const v = voices.find(v => v.lang === 'en-GB' && v.localService)
+      || voices.find(v => v.lang.startsWith('en') && v.localService)
+      || voices.find(v => v.lang.startsWith('en'));
+    if (v) u.voice = v;
   }
   
-  // Critical for Android: speak in the SAME event tick as the user gesture
-  // No setTimeout! Android Chrome requires direct user gesture -> speak.
+  // Speak immediately — no setTimeout, no fallback retry
   window.speechSynthesis.speak(u);
-  
-  // Fallback: if utterance doesn't start within 1s, retry
-  setTimeout(() => {
-    if (!window.speechSynthesis.speaking) {
-      try { window.speechSynthesis.speak(u); } catch(_) {}
-    }
-  }, 1000);
 }
 
 // ==================== SHOP ====================
