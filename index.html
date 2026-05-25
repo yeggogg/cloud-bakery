@@ -717,9 +717,14 @@ function renderWord() {
 
   // Build tray slots
   const tray = document.getElementById('trayArea');
-  tray.innerHTML = wordData.word.split('').map((_, i) =>
-    `<div class="tray-slot" id="slot${i}" data-index="${i}"></div>`
-  ).join('');
+  tray.innerHTML = '';
+  wordData.word.split('').forEach((_, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'tray-slot';
+    slot.id = 'slot' + i;
+    slot.dataset.index = String(i);
+    tray.appendChild(slot);
+  });
 
   // Build cookies (shuffled, including extra distractors)
   const letters = wordData.word.toUpperCase().split('');
@@ -727,9 +732,16 @@ function renderWord() {
   const allLetters = [...letters, ...distractors].sort(() => Math.random() - 0.5);
 
   const cookieTray = document.getElementById('cookieTray');
-  cookieTray.innerHTML = allLetters.map((l, i) =>
-    `<div class="cookie" id="cookie${i}" data-letter="${l}" onclick="tapCookie('cookie${i}')">${l}</div>`
-  ).join('');
+  cookieTray.innerHTML = '';
+  allLetters.forEach((l, i) => {
+    const el = document.createElement('div');
+    el.className = 'cookie';
+    el.id = 'cookie' + i;
+    el.dataset.letter = l;
+    el.textContent = l;
+    el.setAttribute('onclick', "tapCookie('cookie" + i + "')");
+    cookieTray.appendChild(el);
+  });
 
   // Setup drop targets (desktop drag support retained as enhancement)
   tray.querySelectorAll('.tray-slot').forEach(slot => {
@@ -757,6 +769,9 @@ function renderWord() {
   });
 
   // DO NOT auto-speak - requires user gesture on mobile
+
+  // Force reflow for iOS Safari (fixes invisible flex children bug)
+  void cookieTray.offsetHeight;
 }
 
 function getDistractors(used, count) {
