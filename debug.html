@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debug Test</title>
+<style>
+body { margin: 0; padding: 10px; font-family: system-ui, sans-serif; background: #fff; }
+.test { padding: 10px; margin: 8px 0; border: 2px solid red; font-size: 24px; font-weight: bold; }
+.cookie { width: 52px; height: 52px; border-radius: 50%; background: #F5D5A0; color: #6B4226; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(139,90,43,0.2); margin: 4px; }
+.slot { width: 50px; height: 50px; border-radius: 12px; background: #FFF5E4; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #5B4B5A; border: 2px dashed #CDB4DB; margin: 4px; }
+.flex-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.info { font-size: 14px; color: #666; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h2>iOS Debug Test</h2>
+<div class="test">1. Plain text: ABC</div>
+<div class="test">2. Span: <span>P</span><span>A</span><span>D</span></div>
+<div class="test">3. Div cookies:</div>
+<div class="flex-row">
+  <div class="cookie" onclick="this.textContent='X'">P</div>
+  <div class="cookie">A</div>
+  <div class="cookie">D</div>
+  <div class="cookie">S</div>
+</div>
+<div class="test">4. Div slots (empty):</div>
+<div class="flex-row">
+  <div class="slot"></div>
+  <div class="slot"></div>
+  <div class="slot"></div>
+</div>
+<div id="log" class="info">JS running...</div>
+<script>
+document.getElementById('log').textContent = 
+  'DOM ready. cookieTray children: ' + document.querySelectorAll('.cookie').length +
+  | slot children: ' + document.querySelectorAll('.slot').length +
+  | body height: ' + document.body.scrollHeight;
+</script>
+</body>
+</html>
