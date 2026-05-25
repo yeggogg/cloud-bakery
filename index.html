@@ -433,7 +433,7 @@ body {
     <div class="cookie-tray" id="cookieTray"></div>
 
     <div class="game-buttons">
-      <button class="btn btn-blue btn-small" onclick="speakWord()">🔈 再听一次</button>
+      <button class="btn btn-blue btn-small" onclick="speakWord()">🔈 听发音</button>
       <button class="btn btn-lavender btn-small" onclick="exitGame()">🏠 退出</button>
     </div>
   </div>
@@ -700,6 +700,7 @@ function renderWord() {
   const data = WORD_BANK[state.level];
   const wordData = state.words[state.wordIndex];
   state.currentWord = wordData.word;
+  preloadWordAudio(state.currentWord);
   state.mistakes = 0;
   state.trayLetters = new Array(wordData.word.length).fill('');
 
@@ -939,35 +940,34 @@ function playSound(type) {
   } catch(_) {}
 }
 
-// ==================== SPEECH (Android-compatible) ====================
+// ==================== SPEECH (Audio-based, works on ALL browsers incl. WeChat) ====================
+// Uses Youdao dict TTS (free, returns MP3, no API key needed)
+// type=2 = UK English, clearer for phonics
+const TTS_BASE = 'https://dict.youdao.com/dictvoice?type=2&audio=';
+const ttsAudio = document.getElementById('ttsAudio');
+
+// Pre-set audio src when a new word loads
+function preloadWordAudio(word) {
+  ttsAudio.src = TTS_BASE + encodeURIComponent(word);
+  // Force load (some browsers need this)
+  ttsAudio.load();
+}
 
 function speakWord() {
   if (!state.currentWord) return;
-  if (!window.speechSynthesis) return;
-  
-  // Only cancel if already speaking, not every time (Android fix)
-  if (window.speechSynthesis.speaking) {
-    window.speechSynthesis.cancel();
+  const audio = ttsAudio;
+  // Ensure src is set for current word
+  const expectedSrc = TTS_BASE + encodeURIComponent(state.currentWord);
+  if (audio.src !== expectedSrc) {
+    audio.src = expectedSrc;
   }
-  
-  const word = state.currentWord;
-  const u = new SpeechSynthesisUtterance(word);
-  u.lang = 'en-GB';
-  u.rate = 0.5;
-  u.pitch = 1.0;
-  u.volume = 1.0;
-  
-  // Try to assign a voice (offline preferred, works on Android)
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    const v = voices.find(v => v.lang === 'en-GB' && v.localService)
-      || voices.find(v => v.lang.startsWith('en') && v.localService)
-      || voices.find(v => v.lang.startsWith('en'));
-    if (v) u.voice = v;
-  }
-  
-  // Speak immediately — no setTimeout, no fallback retry
-  window.speechSynthesis.speak(u);
+  // Reset and play
+  audio.currentTime = 0;
+  audio.play().catch(e => {
+    // If play() fails (e.g. no user gesture), try again on next frame
+    audio.load();
+    audio.play().catch(() => {});
+  });
 }
 
 // ==================== SHOP ====================
@@ -1066,4 +1066,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
+<!-- Hidden TTS audio element for WeChat/Android compatibility -->
+<audio id="ttsAudio" preload="auto" style="display:none"></audio>
 </html>
