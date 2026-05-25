@@ -50,12 +50,12 @@ body {
 /* ===================== MAIN CONTAINER ===================== */
 .container {
   max-width: 480px; margin: 0 auto; padding: 8px 12px 16px;
-  position: relative; z-index: 1; min-height: 100vh;
+  position: relative; z-index: 1;
   display: flex; flex-direction: column;
 }
 
 /* ===================== SCREENS ===================== */
-.screen { display: none; flex-direction: column; flex: 1; }
+.screen { display: none; flex-direction: column; min-height: 100vh; }
 .screen.active { display: flex; }
 
 /* ===================== TITLE SCREEN ===================== */
