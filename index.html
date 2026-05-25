@@ -413,6 +413,7 @@ body {
       <div class="milk-counter">🥛 <span id="milkDisplay">0</span></div>
       <div class="progress-text" id="progressDisplay">1/15</div>
       <span id="levelName">棉花糖云</span>
+      <button class="btn btn-lavender btn-small" onclick="exitGame()" style="font-size:12px;padding:4px 10px;border-radius:12px;">← 返回</button>
     </div>
 
     <div class="cinna-area">
@@ -477,7 +478,7 @@ body {
     <p class="result-milk">🥛 +<span id="resultMilk">0</span> 牛奶瓶</p>
     <div class="result-buttons">
       <button class="btn btn-blue btn-small" onclick="nextWord()">▶ 下一题</button>
-      <button class="btn btn-pink btn-small" onclick="exitGame()">🏠 退出</button>
+      <button class="btn btn-pink btn-small" onclick="exitGame()">← 返回</button>
     </div>
   </div>
 </div>
@@ -489,7 +490,10 @@ body {
     <h2 id="stageTitle">云岛解锁！</h2>
     <p id="stageMsg"></p>
     <div id="stageSticker"></div>
-    <button class="btn btn-blue" onclick="closeStageComplete()">👍 太棒了！</button>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+      <button class="btn btn-blue" onclick="closeStageComplete()">👍 太棒了！</button>
+      <button class="btn btn-pink btn-small" onclick="exitGame()">← 返回</button>
+    </div>
   </div>
 </div>
 
@@ -644,7 +648,7 @@ function showShop() { renderShop(); showScreen('shopScreen'); }
 function showParent() { renderParent(); showScreen('parentScreen'); }
 
 function showLevel() {
-  unlockSpeech(); renderLevels(); showScreen('levelScreen');
+  renderLevels(); showScreen('levelScreen');
 }
 
 // ==================== LEVEL RENDER ====================
@@ -916,7 +920,7 @@ function closeStageComplete() {
   showLevel();
 }
 
-// ==================== SOUND EFFECTS ====================
+// ==================== SOUND EFFECTS (Web Audio, always works) ====================
 let _audioCtx = null;
 function getAudioCtx() {
   if (!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
@@ -935,49 +939,62 @@ function playSound(type) {
   } catch(_) {}
 }
 
-// ==================== SPEECH (Mobile-robust) ====================
-let _speechUnlocked = false;
-function unlockSpeech() {
-  if (_speechUnlocked) return;
-  _speechUnlocked = true;
-  // Warm up speech synthesis with a silent utterance
-  const u = new SpeechSynthesisUtterance('');
-  u.volume = 0;
-  u.rate = 1;
-  window.speechSynthesis.speak(u);
-  // Also unlock audio context
-  try { getAudioCtx(); } catch(_) {}
+// ==================== SPEECH (Android-compatible) ====================
+let _voicesReady = false;
+let _voices = [];
+
+// Pre-load voices aggressively
+function loadVoices() {
+  _voices = window.speechSynthesis.getVoices();
+  if (_voices.length > 0) { _voicesReady = true; return; }
+  // On Android, voices load asynchronously
+  window.speechSynthesis.onvoiceschanged = () => {
+    _voices = window.speechSynthesis.getVoices();
+    if (_voices.length > 0) _voicesReady = true;
+  };
 }
+loadVoices();
 
 function speakWord() {
   if (!state.currentWord) return;
-  unlockSpeech();
-  // Cancel any ongoing speech
+  if (!window.speechSynthesis) return;
+  
+  // Re-load voices (Android may need it)
+  if (!_voicesReady || _voices.length === 0) {
+    _voices = window.speechSynthesis.getVoices();
+    if (_voices.length > 0) _voicesReady = true;
+  }
+  
+  // Cancel any pending speech immediately
   window.speechSynthesis.cancel();
-  // iOS needs a delay after cancel
-  setTimeout(() => {
-    // Ensure voices are loaded
-    const voices = window.speechSynthesis.getVoices();
-    const u = new SpeechSynthesisUtterance(state.currentWord);
-    u.lang = 'en-US';
-    u.rate = 0.75;
-    u.pitch = 1.1;
-    u.volume = 1.0;
-    const enVoice = voices.find(v => v.lang.startsWith('en'));
+  
+  const word = state.currentWord;
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-GB';
+  u.rate = 0.5;
+  u.pitch = 1.0;
+  u.volume = 1.0;
+  
+  // Pick a LOCAL (offline) English voice for reliability
+  if (_voices.length > 0) {
+    // Prefer localService (offline) British voice
+    let enVoice = _voices.find(v => v.lang === 'en-GB' && v.localService);
+    if (!enVoice) enVoice = _voices.find(v => v.lang.startsWith('en') && v.localService);
+    if (!enVoice) enVoice = _voices.find(v => v.lang.startsWith('en'));
     if (enVoice) u.voice = enVoice;
-    // Resume if paused (iOS can pause after cancel)
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
+  }
+  
+  // Critical for Android: speak in the SAME event tick as the user gesture
+  // No setTimeout! Android Chrome requires direct user gesture -> speak.
+  window.speechSynthesis.speak(u);
+  
+  // Fallback: if utterance doesn't start within 1s, retry
+  setTimeout(() => {
+    if (!window.speechSynthesis.speaking) {
+      try { window.speechSynthesis.speak(u); } catch(_) {}
     }
-    window.speechSynthesis.speak(u);
-  }, 300);
+  }, 1000);
 }
-
-// Pre-load voices
-window.speechSynthesis.getVoices();
-window.speechSynthesis.onvoiceschanged = () => {
-  window.speechSynthesis.getVoices();
-};
 
 // ==================== SHOP ====================
 function renderShop() {
