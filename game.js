@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Cinnamoroll's Cloud Bakery 🐾 玉桂狗的云朵烘焙坊</title>
+<style>
+/* ===================== RESET & FONTS ===================== */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #A8D8EA; --pink: #FFC8DD; --lavender: #CDB4DB;
+  --cream: #FFF5E4; --yellow: #FFE5B4; --white: #FFF;
+  --text: #5B4B5A; --milk: #BDE0FE; --gold: #FFC107;
+  --green: #A8E6CF; --red: #FF8A80;
+}
+body {
+  font-family: 'Baloo 2', 'PingFang SC', 'Microsoft YaHei', cursive, sans-serif;
+  background: linear-gradient(180deg, #B8DFF0 0%, #E8D5F5 50%, #FFF5E4 100%);
+  min-height: 100vh; overflow-x: hidden; color: var(--text);
+  user-select: none; -webkit-user-select: none; touch-action: manipulation;
+}
+
+/* ===================== CLOUD BACKGROUND ===================== */
+.clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.cloud {
+  position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%;
+  animation: floatCloud linear infinite;
+}
+.cloud::before, .cloud::after {
+  content: ''; position: absolute; background: inherit; border-radius: 50%;
+}
+.cloud1 { width: 120px; height: 50px; top: 8%; left: 10%; animation-duration: 25s; }
+.cloud1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+.cloud1::after { width: 80px; height: 50px; top: -20px; left: 50px; }
+.cloud2 { width: 100px; height: 40px; top: 20%; right: 15%; animation-duration: 30s; animation-delay: -8s; }
+.cloud2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+.cloud2::after { width: 60px; height: 40px; top: -15px; left: 40px; }
+.cloud3 { width: 90px; height: 35px; top: 60%; left: 5%; animation-duration: 22s; animation-delay: -15s; }
+.cloud3::before { width: 45px; height: 45px; top: -22px; left: 12px; }
+.cloud3::after { width: 55px; height: 35px; top: -12px; left: 35px; }
+@keyframes floatCloud {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(40px); }
+  100% { transform: translateX(0); }
+}
+
+/* ===================== MAIN CONTAINER ===================== */
+.container {
+  max-width: 480px; margin: 0 auto; padding: 10px 16px 20px;
+  position: relative; z-index: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ===================== SCREENS ===================== */
+.screen { display: none; flex-direction: column; flex: 1; }
+.screen.active { display: flex; }
+
+/* ===================== TITLE SCREEN ===================== */
+#titleScreen { align-items: center; justify-content: center; text-align: center; gap: 20px; padding-top: 40px; }
+.title-cinnamoroll { font-size: 80px; animation: cinnabounce 2s ease-in-out infinite; }
+@keyframes cinnabounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.title-shop {
+  background: var(--white); border-radius: 30px; padding: 6px 24px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  display: inline-block;
+}
+.title-shop h1 { font-size: 28px; font-weight: 800; color: var(--blue); }
+.title-shop p { font-size: 13px; color: #999; margin-top: -4px; }
+.title-ears { font-size: 24px; display: flex; gap: 60px; }
+
+/* Buttons */
+.btn {
+  font-family: inherit; font-size: 18px; font-weight: 700;
+  border: none; border-radius: 25px; padding: 12px 36px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.btn:active { transform: translateY(0); }
+.btn-blue { background: var(--blue); color: var(--white); }
+.btn-pink { background: var(--pink); color: var(--text); }
+.btn-lavender { background: var(--lavender); color: var(--white); }
+.btn-small { font-size: 14px; padding: 8px 20px; border-radius: 20px; }
+.btn-icon { font-size: 28px; padding: 8px 16px; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
+
+.title-buttons { display: flex; flex-direction: column; gap: 10px; width: 220px; }
+
+/* ===================== LEVEL SELECT ===================== */
+#levelScreen { gap: 16px; padding-top: 10px; }
+.level-header { text-align: center; }
+.level-header h2 { font-size: 22px; color: var(--blue); }
+.level-header p { font-size: 14px; color: #999; }
+
+.level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
+.level-card {
+  background: var(--white); border-radius: 20px; padding: 16px;
+  cursor: pointer; transition: all 0.2s; position: relative;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06); text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.level-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+.level-card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
+.level-card.locked:hover { transform: none; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
+.level-emoji { font-size: 40px; }
+.level-name { font-weight: 700; font-size: 14px; }
+.level-stars { font-size: 16px; }
+.level-progress { font-size: 11px; color: #aaa; }
+.level-badge {
+  position: absolute; top: -8px; right: -8px;
+  background: var(--gold); color: var(--white);
+  border-radius: 50%; width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ===================== GAME SCREEN ===================== */
+#gameScreen { gap: 10px; }
+
+/* Status bar */
+.status-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.85); border-radius: 20px;
+  padding: 8px 16px; font-size: 14px; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.milk-counter { display: flex; align-items: center; gap: 4px; }
+.progress-text { color: var(--blue); }
+
+/* Cinnamoroll area */
+.cinna-area {
+  text-align: center; position: relative; min-height: 80px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cinna-character {
+  font-size: 60px; transition: all 0.3s;
+  position: relative; display: inline-block;
+}
+.cinna-character.happy { animation: cinnaHappy 0.5s ease-in-out; }
+.cinna-character.sad { animation: cinnaSad 0.5s ease-in-out; transform: rotate(-10deg); }
+.cinna-character.flying {
+  animation: cinnaFly 1s ease-in-out;
+}
+@keyframes cinnaHappy {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+@keyframes cinnaSad {
+  0% { transform: rotate(0); }
+  25% { transform: rotate(-15deg); }
+  50% { transform: rotate(0); }
+  75% { transform: rotate(-8deg); }
+}
+@keyframes cinnaFly {
+  0% { transform: translateY(0) rotate(0); }
+  30% { transform: translateY(-40px) rotate(-5deg); }
+  60% { transform: translateY(-20px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+/* Customer bubble */
+.customer-area { text-align: center; position: relative; }
+.customer-bubble {
+  background: var(--white); border-radius: 20px; padding: 16px 20px;
+  display: inline-block; box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  position: relative; min-width: 180px;
+}
+.customer-bubble::after {
+  content: ''; position: absolute; bottom: -12px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 14px solid transparent; border-right: 14px solid transparent;
+  border-top: 14px solid var(--white);
+}
+.customer-emoji { font-size: 36px; display: block; }
+.customer-text {
+  font-size: 20px; font-weight: 700; color: var(--text);
+  letter-spacing: 4px; margin-top: 4px;
+}
+.speaker-btn {
+  background: none; border: none; font-size: 24px; cursor: pointer;
+  padding: 4px 8px; border-radius: 12px; transition: all 0.2s;
+  margin-top: 4px;
+}
+.speaker-btn:hover { background: var(--cream); transform: scale(1.1); }
+.speaker-btn:active { transform: scale(0.95); }
+
+/* Baking tray */
+.tray-area {
+  display: flex; justify-content: center; gap: 8px;
+  flex-wrap: wrap; padding: 10px;
+  background: rgba(255,255,255,0.6); border-radius: 20px;
+  min-height: 70px; align-items: center;
+  border: 3px dashed var(--blue);
+}
+.tray-slot {
+  width: 50px; height: 50px; border-radius: 12px;
+  background: var(--cream); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 800; color: var(--text);
+  transition: all 0.3s; border: 2px dashed var(--lavender);
+}
+.tray-slot.filled {
+  background: var(--blue); color: var(--white);
+  border: 2px solid var(--blue);
+  animation: popIn 0.3s ease-out;
+}
+.tray-slot.wrong {
+  background: var(--red); animation: shake 0.4s ease-in-out;
+}
+.tray-slot.hint { border-color: var(--gold); box-shadow: 0 0 10px rgba(255,193,7,0.4); }
+@keyframes popIn {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Letter cookies */
+.cookie-tray {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 8px; padding: 12px;
+  background: rgba(255,255,255,0.5); border-radius: 20px;
+  min-height: 60px;
+}
+.cookie {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #F5D5A0 0%, #E8C07A 100%);
+  color: #6B4226; font-size: 22px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  cursor: grab; box-shadow: 0 3px 6px rgba(0,0,0,0.12), inset 0 -2px 3px rgba(0,0,0,0.1);
+  transition: all 0.2s; position: relative; touch-action: none;
+  border: 2px solid rgba(139,90,43,0.2);
+}
+.cookie::after {
+  content: ''; position: absolute; width: 40px; height: 20px;
+  background: rgba(255,255,255,0.3); border-radius: 50%;
+  top: 6px; pointer-events: none;
+}
+.cookie:hover { transform: scale(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.18); }
+.cookie:active { cursor: grabbing; }
+.cookie.dragging { opacity: 0.5; transform: scale(0.9); }
+.cookie.used {
+  opacity: 0.3; pointer-events: none; transform: scale(0.85);
+}
+
+/* Bottom buttons */
+.game-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* ===================== RESULT OVERLAY ===================== */
+.result-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4); display: none;
+  align-items: center; justify-content: center; z-index: 100;
+}
+.result-overlay.active { display: flex; }
+.result-card {
+  background: var(--white); border-radius: 24px; padding: 30px 20px;
+  text-align: center; max-width: 320px; width: 90%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.result-emoji { font-size: 60px; margin-bottom: 8px; }
+.result-stars { font-size: 36px; margin: 8px 0; }
+.result-milk { font-size: 16px; color: var(--blue); font-weight: 600; }
+.result-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+
+/* ===================== SHOP SCREEN ===================== */
+#shopScreen { gap: 12px; }
+.shop-header { text-align: center; }
+.shop-header h2 { font-size: 22px; color: var(--blue); }
+.shop-milk { font-size: 16px; color: var(--blue); font-weight: 600; }
+.shop-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; overflow-y: auto; flex: 1; }
+.shop-item {
+  background: var(--white); border-radius: 16px; padding: 12px;
+  text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.shop-item-emoji { font-size: 36px; }
+.shop-item-name { font-size: 13px; font-weight: 600; margin: 4px 0; }
+.shop-item-cost { font-size: 12px; color: var(--blue); font-weight: 600; }
+.shop-item.owned { background: var(--green); opacity: 0.8; }
+.shop-item button { margin-top: 6px; }
+
+/* ===================== PARENT SCREEN ===================== */
+#parentScreen { gap: 12px; overflow-y: auto; }
+.parent-header h2 { font-size: 22px; color: var(--blue); text-align: center; }
+.stat-card {
+  background: var(--white); border-radius: 16px; padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.stat-card h3 { font-size: 16px; margin-bottom: 8px; }
+.stat-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; }
+.stat-bar {
+  height: 10px; border-radius: 5px; background: #eee; margin-top: 4px;
+  overflow: hidden;
+}
+.stat-bar-inner { height: 100%; border-radius: 5px; background: var(--blue); transition: width 0.3s; }
+
+.worst-words { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.worst-word {
+  background: var(--red); color: var(--white); padding: 4px 12px;
+  border-radius: 12px; font-size: 13px; font-weight: 600;
+}
+
+/* ===================== STAGE COMPLETE OVERLAY ===================== */
+.stage-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: none;
+  align-items: center; justify-content: center; z-index: 100;
+}
+.stage-overlay.active { display: flex; }
+.stage-card {
+  background: var(--white); border-radius: 24px; padding: 30px 20px;
+  text-align: center; max-width: 320px; width: 90%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+.stage-emoji { font-size: 70px; margin: 8px 0; animation: cinnabounce 1s ease-in-out infinite; }
+.stage-card h2 { font-size: 22px; color: var(--lavender); }
+.stage-card p { font-size: 14px; color: #999; margin: 4px 0 12px; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 400px) {
+  .container { padding: 8px 12px 16px; }
+  .title-cinnamoroll { font-size: 60px; }
+  .title-shop h1 { font-size: 22px; }
+  .cookie { width: 42px; height: 42px; font-size: 18px; }
+  .tray-slot { width: 42px; height: 42px; font-size: 24px; }
+  .btn { font-size: 16px; padding: 10px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Floating Clouds -->
+<div class="clouds">
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+</div>
+
+<!-- ===================== MAIN CONTAINER ===================== -->
+<div class="container">
+
+  <!-- 🏠 Title Screen -->
+  <div id="titleScreen" class="screen active">
+    <div class="title-ears">🐾 🐾</div>
+    <div class="title-cinnamoroll">🐶☁️</div>
+    <div class="title-shop">
+      <h1>Cloud Bakery</h1>
+      <p>云朵烘焙坊 · Cinnamoroll</p>
+    </div>
+    <div class="title-buttons">
+      <button class="btn btn-blue" onclick="showLevel()">🎮 开始游戏</button>
+      <button class="btn btn-pink btn-small" onclick="showShop()">🏠 装饰小店</button>
+      <button class="btn btn-lavender btn-small" onclick="showParent()">📊 家长后台</button>
+    </div>
+  </div>
+
+  <!-- 🗺️ Level Select -->
+  <div id="levelScreen" class="screen">
+    <div class="level-header">
+      <h2>☁️ 选择云朵岛</h2>
+      <p>每座岛解锁新的拼读奥秘！</p>
+    </div>
+    <div class="level-grid" id="levelGrid"></div>
+    <button class="btn btn-pink btn-small" style="align-self: center;" onclick="showTitle()">← 返回</button>
+  </div>
+
+  <!-- 🎮 Game Screen -->
+  <div id="gameScreen" class="screen">
+    <div class="status-bar" id="statusBar">
+      <div class="milk-counter">🥛 <span id="milkDisplay">0</span></div>
+      <div class="progress-text" id="progressDisplay">1/15</div>
+      <span id="levelName">棉花糖云</span>
+    </div>
+
+    <div class="cinna-area">
+      <div class="cinna-character" id="cinnaChar">🐶☁️</div>
+    </div>
+
+    <div class="customer-area">
+      <div class="customer-bubble">
+        <span class="customer-emoji" id="customerEmoji">🐱</span>
+        <span class="customer-text" id="customerWord">_ _ _</span>
+        <button class="speaker-btn" onclick="speakWord()" title="听发音">🔈</button>
+      </div>
+    </div>
+
+    <div class="tray-area" id="trayArea"></div>
+
+    <div class="cookie-tray" id="cookieTray"></div>
+
+    <div class="game-buttons">
+      <button class="btn btn-blue btn-small" onclick="speakWord()">🔈 再听一次</button>
+      <button class="btn btn-lavender btn-small" onclick="exitGame()">🏠 退出</button>
+    </div>
+  </div>
+
+  <!-- 🏠 Shop Screen -->
+  <div id="shopScreen" class="screen">
+    <div class="shop-header">
+      <h2>🏠 装饰 Café Cinnamon</h2>
+      <p class="shop-milk">🥛 牛奶瓶: <span id="shopMilk">0</span></p>
+    </div>
+    <div class="shop-items" id="shopItems"></div>
+    <button class="btn btn-pink btn-small" style="align-self: center;" onclick="showTitle()">← 返回</button>
+  </div>
+
+  <!-- 📊 Parent Screen -->
+  <div id="parentScreen" class="screen">
+    <div class="parent-header"><h2>📊 学习报告</h2></div>
+    <div class="stat-card">
+      <h3>📈 总体进度</h3>
+      <div class="stat-row"><span>已完成题目</span><span id="statDone">0</span></div>
+      <div class="stat-row"><span>总尝试次数</span><span id="statTotal">0</span></div>
+      <div class="stat-row"><span>准确率</span><span id="statAcc">0%</span></div>
+      <div class="stat-row"><span>累计牛奶瓶</span><span>🥛 <span id="statMilk">0</span></span></div>
+    </div>
+    <div class="stat-card" id="levelStats"></div>
+    <div class="stat-card">
+      <h3>⚠️ 拼错最多的单词 Top 5</h3>
+      <div class="worst-words" id="worstWords"></div>
+    </div>
+    <button class="btn btn-lavender btn-small" style="align-self: center; margin-top: 8px;" onclick="resetProgress()">🔄 重置进度</button>
+    <button class="btn btn-pink btn-small" style="align-self: center; margin-top: 8px;" onclick="showTitle()">← 返回</button>
+  </div>
+
+</div>
+
+<!-- ===================== RESULT OVERLAY ===================== -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+    <p id="resultMsg">太棒了！</p>
+    <p class="result-milk">🥛 +<span id="resultMilk">0</span> 牛奶瓶</p>
+    <div class="result-buttons">
+      <button class="btn btn-blue btn-small" onclick="nextWord()">▶ 下一题</button>
+      <button class="btn btn-pink btn-small" onclick="exitGame()">🏠 退出</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🎊 Stage Complete Overlay -->
+<div class="stage-overlay" id="stageOverlay">
+  <div class="stage-card">
+    <div class="stage-emoji" id="stageEmoji">🎉</div>
+    <h2 id="stageTitle">云岛解锁！</h2>
+    <p id="stageMsg"></p>
+    <div id="stageSticker"></div>
+    <button class="btn btn-blue" onclick="closeStageComplete()">👍 太棒了！</button>
+  </div>
+</div>
+
+<!-- ===================== GAME ENGINE ===================== -->
+<script>
+// ==================== WORD BANK ====================
+const WORD_BANK = {
+  // 阶段1: 棉花糖云 ☁️ CVC
+  cloud1: {
+    name: '棉花糖云', emoji: '☁️', rule: 'CVC 短元音',
+    words: [
+      {word:'cat',hint:'猫咪'},{word:'bag',hint:'包'},{word:'hat',hint:'帽子'},{word:'map',hint:'地图'},{word:'sad',hint:'伤心'},
+      {word:'bed',hint:'床'},{word:'pen',hint:'笔'},{word:'red',hint:'红色'},{word:'leg',hint:'腿'},{word:'net',hint:'网'},
+      {word:'pig',hint:'猪'},{word:'sit',hint:'坐'},{word:'big',hint:'大'},{word:'fin',hint:'鱼鳍'},{word:'dig',hint:'挖'},
+      {word:'dog',hint:'狗'},{word:'hot',hint:'热'},{word:'pot',hint:'锅'},{word:'fox',hint:'狐狸'},{word:'log',hint:'圆木'},
+      {word:'sun',hint:'太阳'},{word:'cup',hint:'杯子'},{word:'bug',hint:'虫子'},{word:'rug',hint:'地毯'},{word:'run',hint:'跑'},
+    ]
+  },
+  // 阶段2: 甜甜圈云 🍩 Blends
+  cloud2: {
+    name: '甜甜圈云', emoji: '🍩', rule: '辅音混合',
+    words: [
+      {word:'frog',hint:'青蛙'},{word:'stop',hint:'停下'},{word:'clip',hint:'夹子'},{word:'drum',hint:'鼓'},{word:'swim',hint:'游泳'},
+      {word:'flag',hint:'旗子'},{word:'glad',hint:'开心'},{word:'slip',hint:'滑倒'},{word:'crab',hint:'螃蟹'},{word:'plum',hint:'李子'},
+      {word:'star',hint:'星星'},{word:'tree',hint:'树'},{word:'drop',hint:'掉落'},{word:'grab',hint:'抓住'},{word:'grid',hint:'网格'},
+      {word:'trip',hint:'旅行'},{word:'dress',hint:'裙子'},{word:'snap',hint:'断裂'},{word:'spin',hint:'旋转'},{word:'step',hint:'步伐'},
+    ]
+  },
+  // 阶段3: 草莓蛋糕云 🍰 Digraphs
+  cloud3: {
+    name: '草莓蛋糕云', emoji: '🍰', rule: '复合音 Digraphs',
+    words: [
+      {word:'ship',hint:'船'},{word:'fish',hint:'鱼'},{word:'dish',hint:'盘子'},{word:'shop',hint:'商店'},{word:'wish',hint:'愿望'},
+      {word:'chat',hint:'聊天'},{word:'chip',hint:'薯片'},{word:'chin',hint:'下巴'},{word:'chop',hint:'切'},{word:'rich',hint:'富有'},
+      {word:'thin',hint:'薄'},{word:'bath',hint:'洗澡'},{word:'math',hint:'数学'},{word:'path',hint:'小路'},{word:'that',hint:'那个'},
+      {word:'when',hint:'何时'},{word:'whip',hint:'鞭子'},{word:'photo',hint:'照片'},{word:'graph',hint:'图表'},{word:'phone',hint:'电话'},
+    ]
+  },
+  // 阶段4: 纸杯蛋糕云 🧁 Magic E
+  cloud4: {
+    name: '纸杯蛋糕云', emoji: '🧁', rule: '魔法 E',
+    words: [
+      {word:'cake',hint:'蛋糕'},{word:'bake',hint:'烘焙'},{word:'game',hint:'游戏'},{word:'name',hint:'名字'},{word:'lake',hint:'湖'},
+      {word:'bike',hint:'自行车'},{word:'five',hint:'五'},{word:'kite',hint:'风筝'},{word:'rice',hint:'米饭'},{word:'time',hint:'时间'},
+      {word:'note',hint:'笔记'},{word:'bone',hint:'骨头'},{word:'home',hint:'家'},{word:'rope',hint:'绳子'},{word:'hope',hint:'希望'},
+      {word:'cute',hint:'可爱'},{word:'tube',hint:'管子'},{word:'cube',hint:'方块'},{word:'mule',hint:'骡子'},{word:'tune',hint:'旋律'},
+    ]
+  },
+  // 阶段5: 曲奇云 🍪 R-controlled
+  cloud5: {
+    name: '曲奇云', emoji: '🍪', rule: 'R 控元音',
+    words: [
+      {word:'star',hint:'星星'},{word:'car',hint:'汽车'},{word:'farm',hint:'农场'},{word:'park',hint:'公园'},{word:'dark',hint:'黑暗'},
+      {word:'bird',hint:'小鸟'},{word:'girl',hint:'女孩'},{word:'surf',hint:'冲浪'},{word:'turn',hint:'转动'},{word:'herb',hint:'香草'},
+      {word:'corn',hint:'玉米'},{word:'horn',hint:'号角'},{word:'fork',hint:'叉子'},{word:'born',hint:'出生'},{word:'sort',hint:'分类'},
+    ]
+  },
+  // 阶段6: 生日蛋糕云 🎂 综合
+  cloud6: {
+    name: '生日蛋糕云', emoji: '🎂', rule: '综合大师',
+    words: [
+      {word:'rabbit',hint:'兔子'},{word:'flower',hint:'花'},{word:'garden',hint:'花园'},{word:'school',hint:'学校'},{word:'pencil',hint:'铅笔'},
+      {word:'window',hint:'窗户'},{word:'animal',hint:'动物'},{word:'sister',hint:'姐妹'},{word:'market',hint:'市场'},{word:'table',hint:'桌子'},
+      {word:'mix',hint:'混合'},{word:'bake',hint:'烘焙'},{word:'roll',hint:'卷'},{word:'cook',hint:'烹饪'},{word:'milk',hint:'牛奶'},
+      {word:'sugar',hint:'糖'},{word:'plate',hint:'盘子'},{word:'sweet',hint:'甜的'},{word:'bread',hint:'面包'},{word:'cream',hint:'奶油'},
+    ]
+  }
+};
+
+// ==================== CUSTOMER ANIMALS ====================
+const CUSTOMERS = ['🐱','🐰','🐧','🐻','🐼','🦊','🐸','🐨','🐯','🦁','🐮','🐷','🐵','🐔','🐶'];
+const CINNAMOOD = { normal: '🐶☁️', happy: '🐶✨', sad: '🐶💧', fly: '🐶🌈' };
+
+// ==================== GAME STATE ====================
+let state = {
+  screen: 'title',
+  level: null,
+  wordIndex: 0,
+  currentWord: '',
+  trayLetters: [],
+  mistakes: 0,
+  milk: 0,
+  // per-level stats
+  levelProgress: {
+    cloud1: { stars: 0, completed: 0 },
+    cloud2: { stars: 0, completed: 0 },
+    cloud3: { stars: 0, completed: 0 },
+    cloud4: { stars: 0, completed: 0 },
+    cloud5: { stars: 0, completed: 0 },
+    cloud6: { stars: 0, completed: 0 },
+  },
+  // global stats
+  totalAttempts: 0,
+  totalCorrect: 0,
+  wordMistakes: {}, // { word: count }
+  // shop
+  ownedItems: [],
+  // stickers
+  unlockedStickers: [],
+};
+
+// ==================== PERSISTENCE ====================
+function saveState() {
+  localStorage.setItem('cloudBakery', JSON.stringify({
+    levelProgress: state.levelProgress,
+    milk: state.milk,
+    totalAttempts: state.totalAttempts,
+    totalCorrect: state.totalCorrect,
+    wordMistakes: state.wordMistakes,
+    ownedItems: state.ownedItems,
+    unlockedStickers: state.unlockedStickers,
+  }));
+}
+function loadState() {
+  const saved = localStorage.getItem('cloudBakery');
+  if (saved) {
+    const d = JSON.parse(saved);
+    Object.assign(state.levelProgress, d.levelProgress);
+    state.milk = d.milk || 0;
+    state.totalAttempts = d.totalAttempts || 0;
+    state.totalCorrect = d.totalCorrect || 0;
+    state.wordMistakes = d.wordMistakes || {};
+    state.ownedItems = d.ownedItems || [];
+    state.unlockedStickers = d.unlockedStickers || [];
+  }
+}
+
+// ==================== SHOP ITEMS ====================
+const SHOP_ITEMS = [
+  { id: 'wallpaper_pink', name: '粉色墙纸', emoji: '🩷', cost: 10, hint: '换粉粉的背景' },
+  { id: 'wallpaper_blue', name: '天蓝墙纸', emoji: '🩵', cost: 10, hint: '像云朵的天空' },
+  { id: 'cloud_chair', name: '云朵椅子', emoji: '☁️', cost: 15, hint: '软软的云朵椅子' },
+  { id: 'strawberry_table', name: '草莓桌', emoji: '🍓', cost: 15, hint: '可爱的草莓桌子' },
+  { id: 'star_light', name: '星星吊灯', emoji: '⭐', cost: 20, hint: 'bling bling' },
+  { id: 'rainbow_oven', name: '彩虹烤箱', emoji: '🌈', cost: 25, hint: '烤出彩虹甜点' },
+  { id: 'flower_apron', name: '花花围裙', emoji: '🌸', cost: 20, hint: '给玉桂狗穿上' },
+  { id: 'golden_tray', name: '金色烤盘', emoji: '✨', cost: 30, hint: '闪亮的烘焙神器' },
+  { id: 'candy_sign', name: '糖果招牌', emoji: '🍬', cost: 25, hint: '超甜的店招' },
+  { id: 'crystal_mixer', name: '水晶搅拌器', emoji: '💎', cost: 35, hint: '终极烘焙装备' },
+];
+
+// ==================== NAVIGATION ====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('resultOverlay').classList.remove('active');
+  state.screen = id;
+}
+
+function showTitle() { showScreen('titleScreen'); }
+function showShop() { renderShop(); showScreen('shopScreen'); }
+function showParent() { renderParent(); showScreen('parentScreen'); }
+
+function showLevel() {
+  renderLevels(); showScreen('levelScreen');
+}
+
+// ==================== LEVEL RENDER ====================
+function renderLevels() {
+  const grid = document.getElementById('levelGrid');
+  const levels = ['cloud1','cloud2','cloud3','cloud4','cloud5','cloud6'];
+  grid.innerHTML = levels.map((key, i) => {
+    const data = WORD_BANK[key];
+    const prog = state.levelProgress[key];
+    const unlocked = i === 0 || state.levelProgress[levels[i-1]].stars > 0;
+    const stars = prog.stars > 0 ? '⭐'.repeat(Math.min(prog.stars, 3)) : '☆☆☆';
+    const lockClass = unlocked ? '' : 'locked';
+    const badge = prog.completed > 0 ? `<div class="level-badge">${prog.completed}</div>` : '';
+    const onClick = unlocked ? `onclick="startGame('${key}')"` : '';
+    return `
+      <div class="level-card ${lockClass}" ${onClick}>
+        ${badge}
+        <div class="level-emoji">${data.emoji}</div>
+        <div class="level-name">${data.name}</div>
+        <div class="level-stars">${stars}</div>
+        <div class="level-progress">${data.rule} · ${data.words.length}词</div>
+      </div>`;
+  }).join('');
+}
+
+// ==================== START GAME ====================
+function startGame(levelKey) {
+  state.level = levelKey;
+  state.wordIndex = 0;
+  state.trayLetters = [];
+  state.mistakes = 0;
+  const data = WORD_BANK[levelKey];
+  // shuffle words
+  state.words = [...data.words].sort(() => Math.random() - 0.5);
+  showScreen('gameScreen');
+  document.getElementById('levelName').textContent = data.name;
+  renderWord();
+}
+
+function exitGame() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  document.getElementById('stageOverlay').classList.remove('active');
+  saveState();
+  showLevel();
+}
+
+// ==================== RENDER WORD ====================
+function renderWord() {
+  const data = WORD_BANK[state.level];
+  const wordData = state.words[state.wordIndex];
+  state.currentWord = wordData.word;
+  state.mistakes = 0;
+  state.trayLetters = new Array(wordData.word.length).fill('');
+
+  // Update UI
+  document.getElementById('progressDisplay').textContent =
+    `${state.wordIndex + 1}/${state.words.length}`;
+  document.getElementById('milkDisplay').textContent = state.milk;
+  document.getElementById('customerEmoji').textContent =
+    CUSTOMERS[state.wordIndex % CUSTOMERS.length];
+  document.getElementById('customerWord').textContent =
+    '_ '.repeat(wordData.word.length).trim();
+  document.getElementById('cinnaChar').textContent = CINNAMOOD.normal;
+  document.getElementById('cinnaChar').className = 'cinna-character';
+
+  // Build tray slots
+  const tray = document.getElementById('trayArea');
+  tray.innerHTML = wordData.word.split('').map((_, i) =>
+    `<div class="tray-slot" id="slot${i}" data-index="${i}"></div>`
+  ).join('');
+
+  // Build cookies (shuffled, including extra distractors)
+  const letters = wordData.word.toUpperCase().split('');
+  const distractors = getDistractors(letters, Math.min(4, letters.length));
+  const allLetters = [...letters, ...distractors].sort(() => Math.random() - 0.5);
+
+  const cookieTray = document.getElementById('cookieTray');
+  cookieTray.innerHTML = allLetters.map((l, i) =>
+    `<div class="cookie" id="cookie${i}" data-letter="${l}"
+          draggable="true"
+          onclick="tapCookie('cookie${i}')"
+          ondragstart="dragStart(event, 'cookie${i}')"
+          ondragend="dragEnd(event, 'cookie${i}')">${l}</div>`
+  ).join('');
+
+  // Remove touch handlers that block click on mobile
+  // (touchstart with preventDefault blocks onclick)
+  // Click alone works on both desktop and mobile.
+
+  // Setup drop targets
+  tray.querySelectorAll('.tray-slot').forEach(slot => {
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('hint'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('hint'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault(); slot.classList.remove('hint');
+      const cookieId = e.dataTransfer.getData('text/plain');
+      dropCookie(cookieId, parseInt(slot.dataset.index));
+    });
+    // Tap a tray slot to remove its letter
+    slot.style.cursor = 'pointer';
+    slot.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.index);
+      if (state.trayLetters[idx] === '') return;
+      const letter = state.trayLetters[idx];
+      state.trayLetters[idx] = '';
+      this.textContent = '';
+      this.classList.remove('filled');
+      // Re-enable matching cookie
+      document.querySelectorAll('.cookie.used').forEach(c => {
+        if (c.dataset.letter === letter) c.classList.remove('used');
+      });
+    });
+  });
+
+  // DO NOT auto-speak - requires user gesture
+}
+
+function getDistractors(used, count) {
+  const all = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const available = all.filter(l => !used.includes(l));
+  const shuffled = available.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+// ==================== TOUCH & DRAG (Desktop) ====================
+function dragStart(e, cookieId) {
+  e.dataTransfer.setData('text/plain', cookieId);
+  document.getElementById(cookieId)?.classList.add('dragging');
+}
+function dragEnd(e, cookieId) {
+  document.getElementById(cookieId)?.classList.remove('dragging');
+}
+
+// ==================== TAP TO PLACE (Works on ALL devices) ====================
+function tapCookie(cookieId) {
+  const cookie = document.getElementById(cookieId);
+  if (!cookie || cookie.classList.contains('used')) return;
+  const nextEmpty = state.trayLetters.findIndex(l => l === '');
+  if (nextEmpty < 0) return;
+  dropCookie(cookieId, nextEmpty);
+}
+
+// ==================== DROP LOGIC ====================
+function dropCookie(cookieId, slotIndex) {
+  if (state.trayLetters[slotIndex] !== '') return; // already filled
+
+  const cookie = document.getElementById(cookieId);
+  if (!cookie || cookie.classList.contains('used')) return;
+
+  const letter = cookie.dataset.letter;
+  const targetLetter = state.currentWord[slotIndex].toUpperCase();
+
+  const slot = document.getElementById('slot' + slotIndex);
+
+  if (letter === targetLetter) {
+    // Correct!
+    playSound('correct');
+    state.trayLetters[slotIndex] = letter;
+    slot.textContent = letter;
+    slot.classList.add('filled');
+    cookie.classList.add('used');
+
+    // Check if all filled
+    if (!state.trayLetters.includes('')) {
+      // Word complete!
+      setTimeout(() => wordComplete(), 400);
+    }
+  } else {
+    // Wrong!
+    slot.classList.add('wrong');
+    state.totalAttempts++;
+    state.mistakes++;
+    state.wordMistakes[state.currentWord] = (state.wordMistakes[state.currentWord] || 0) + 1;
+    const cinna = document.getElementById('cinnaChar');
+    cinna.textContent = '🐶💧';
+    cinna.className = 'cinna-character sad';
+    playSound('error');
+    // Return the letter back
+    slot.textContent = letter + ' ✗';
+
+    setTimeout(() => {
+      slot.classList.remove('wrong');
+      slot.textContent = '';
+      cookie.classList.remove('used');
+      cinna.textContent = CINNAMOOD.normal;
+      cinna.className = 'cinna-character';
+    }, 600);
+    saveState();
+  }
+}
+
+// ==================== WORD COMPLETE ====================
+function wordComplete() {
+  state.totalAttempts++;
+  state.totalCorrect++;
+
+  const cinna = document.getElementById('cinnaChar');
+  cinna.textContent = '🐶🌈';
+  cinna.className = 'cinna-character flying';
+
+  // Calculate stars
+  let stars = 3;
+  if (state.mistakes >= 3) stars = 1;
+  else if (state.mistakes >= 1) stars = 2;
+
+  // Milk reward
+  const milkReward = stars * 2 + (state.mistakes === 0 ? 2 : 0);
+  state.milk += milkReward;
+
+  // Update level progress
+  const prog = state.levelProgress[state.level];
+  const starsToStore = Math.max(prog.stars, stars);
+  state.levelProgress[state.level] = {
+    stars: starsToStore,
+    completed: state.wordIndex + 1,
+  };
+
+  saveState();
+
+  // Show result
+  const emojis = { 3: '🌟', 2: '🎉', 1: '💪' };
+  const msgs = { 3: '太厉害了！一次就拼对！', 2: '很棒！只错了 ' + state.mistakes + ' 次', 1: '加油！多做练习越来越好' };
+  const starStr = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+
+  document.getElementById('resultEmoji').textContent = emojis[stars];
+  document.getElementById('resultStars').textContent = starStr;
+  document.getElementById('resultMsg').textContent = msgs[stars];
+  document.getElementById('resultMilk').textContent = milkReward;
+  document.getElementById('milkDisplay').textContent = state.milk;
+  document.getElementById('resultOverlay').classList.add('active');
+}
+
+function nextWord() {
+  document.getElementById('resultOverlay').classList.remove('active');
+  state.wordIndex++;
+
+  if (state.wordIndex >= state.words.length) {
+    // Stage complete!
+    stageComplete();
+    return;
+  }
+  renderWord();
+}
+
+// ==================== STAGE COMPLETE ====================
+function stageComplete() {
+  const data = WORD_BANK[state.level];
+  const prog = state.levelProgress[state.level];
+
+  // Unlock sticker
+  const stickerKey = 'sticker_' + state.level;
+  if (!state.unlockedStickers.includes(stickerKey)) {
+    state.unlockedStickers.push(stickerKey);
+  }
+
+  saveState();
+
+  document.getElementById('stageEmoji').textContent = data.emoji;
+  document.getElementById('stageTitle').textContent = data.name + ' 完成！';
+  document.getElementById('stageMsg').textContent =
+    `获得 ${prog.stars} 颗星 🌟 · 新贴纸解锁！`;
+
+  const stickers = {
+    cloud1: '🐱 Mocha', cloud2: '🐰 Chiffon', cloud3: '🐧 Cappuccino',
+    cloud4: '🐻 Espresso', cloud5: '🐼 Milk', cloud6: '🐶 Cinnamoroll!'
+  };
+  document.getElementById('stageSticker').innerHTML = `
+    <div style="font-size:48px;margin:8px 0;">🎖️</div>
+    <p style="font-weight:700;">${stickers[state.level] || '新朋友！'} 加入 Café!</p>`;
+
+  document.getElementById('stageOverlay').classList.add('active');
+}
+
+function closeStageComplete() {
+  document.getElementById('stageOverlay').classList.remove('active');
+  saveState();
+  showLevel();
+}
+
+// ==================== SOUND EFFECTS ====================
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+function playSound(type) {
+  try {
+    const ctx = getAudioCtx();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    g.gain.value = 0.12;
+    if (type === 'correct') { o.frequency.value = 660; o.type = 'sine'; o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.3); o.stop(ctx.currentTime+0.3); }
+    else if (type === 'error') { o.frequency.value = 220; o.type = 'square'; o.start(); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.25); o.stop(ctx.currentTime+0.25); }
+  } catch(_) {}
+}
+
+// ==================== SPEECH (Simplified & Robust) ====================
+function speakWord() {
+  if (!state.currentWord) return;
+  // Cancel any ongoing speech first
+  window.speechSynthesis.cancel();
+  // Some browsers need a brief pause after cancel
+  setTimeout(() => {
+    const u = new SpeechSynthesisUtterance(state.currentWord);
+    u.lang = 'en-US';
+    u.rate = 0.7;
+    u.pitch = 1.1;
+    u.volume = 1.0;
+    // Try to pick an English voice
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice = voices.find(v => v.lang.startsWith('en'));
+    if (enVoice) u.voice = enVoice;
+    // Wake up audio context if suspended (mobile Safari)
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    window.speechSynthesis.speak(u);
+  }, 200);
+}
+
+// Pre-load voices on first user gesture
+window.speechSynthesis.getVoices();
+window.speechSynthesis.onvoiceschanged = () => {
+  window.speechSynthesis.getVoices();
+};
+
+// ==================== SHOP ====================
+function renderShop() {
+  document.getElementById('shopMilk').textContent = state.milk;
+  const container = document.getElementById('shopItems');
+  container.innerHTML = SHOP_ITEMS.map(item => {
+    const owned = state.ownedItems.includes(item.id);
+    if (owned) {
+      return `<div class="shop-item owned">
+        <div class="shop-item-emoji">${item.emoji}</div>
+        <div class="shop-item-name">${item.name}</div>
+        <div style="font-size:12px;color:var(--white)">✅ 已拥有</div>
+      </div>`;
+    }
+    const canBuy = state.milk >= item.cost;
+    return `<div class="shop-item">
+      <div class="shop-item-emoji">${item.emoji}</div>
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-cost">🥛 ${item.cost}</div>
+      <p style="font-size:11px;color:#aaa">${item.hint}</p>
+      <button class="btn btn-blue btn-small" ${canBuy ? '' : 'disabled'}
+        onclick="buyItem('${item.id}',${item.cost})">
+        ${canBuy ? '购买' : '不够🥛'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function buyItem(id, cost) {
+  if (state.milk < cost) return;
+  state.milk -= cost;
+  state.ownedItems.push(id);
+  saveState();
+  renderShop();
+}
+
+// ==================== PARENT DASHBOARD ====================
+function renderParent() {
+  const acc = state.totalAttempts > 0
+    ? Math.round((state.totalCorrect / state.totalAttempts) * 100) : 0;
+  document.getElementById('statDone').textContent = state.totalCorrect;
+  document.getElementById('statTotal').textContent = state.totalAttempts;
+  document.getElementById('statAcc').textContent = acc + '%';
+  document.getElementById('statMilk').textContent = state.milk;
+
+  // Level stats
+  const levels = ['cloud1','cloud2','cloud3','cloud4','cloud5','cloud6'];
+  document.getElementById('levelStats').innerHTML = '<h3>🏝️ 各阶段进度</h3>' +
+    levels.map(key => {
+      const d = WORD_BANK[key]; const p = state.levelProgress[key];
+      const pct = d.words.length > 0 ? Math.round(p.completed / d.words.length * 100) : 0;
+      const stars = p.stars > 0 ? '⭐'.repeat(Math.min(p.stars, 3)) : '—';
+      return `<div class="stat-row">
+        <span>${d.emoji} ${d.name}</span>
+        <span>${stars} · ${p.completed}/${d.words.length}</span>
+      </div>
+      <div class="stat-bar"><div class="stat-bar-inner" style="width:${pct}%"></div></div>`;
+    }).join('');
+
+  // Worst words
+  const worst = Object.entries(state.wordMistakes)
+    .sort((a, b) => b[1] - a[1]).slice(0, 5);
+  document.getElementById('worstWords').innerHTML = worst.length > 0
+    ? worst.map(([w, c]) => `<span class="worst-word">${w} (×${c})</span>`).join('')
+    : '<p style="color:#aaa">暂无数据，开始练习就有了~</p>';
+}
+
+function resetProgress() {
+  if (!confirm('确定要重置所有进度？这无法撤销！')) return;
+  localStorage.removeItem('cloudBakery');
+  state = {
+    screen: 'title', level: null, wordIndex: 0, currentWord: '',
+    trayLetters: [], mistakes: 0, milk: 0,
+    levelProgress: Object.fromEntries(
+      Object.keys(WORD_BANK).map(k => [k, { stars: 0, completed: 0 }])
+    ),
+    totalAttempts: 0, totalCorrect: 0, wordMistakes: {},
+    ownedItems: [], unlockedStickers: [],
+  };
+  saveState();
+  renderParent();
+  alert('进度已重置！');
+}
+
+// ==================== INIT ====================
+loadState();
+// Ensure levelProgress has all keys
+Object.keys(WORD_BANK).forEach(k => {
+  if (!state.levelProgress[k]) state.levelProgress[k] = { stars: 0, completed: 0 };
+});
+
+// Auto-speak on first word
+document.addEventListener('DOMContentLoaded', () => {
+  // Ready!
+});
+</script>
+</body>
+</html>
