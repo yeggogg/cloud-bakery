@@ -432,7 +432,7 @@ body {
 
     <div class="cookie-tray" id="cookieTray"></div>
 
-    <div id="iosDebug" style="position:fixed;bottom:0;left:0;right:0;background:rgba(255,0,0,0.8);color:#fff;font-size:12px;padding:4px;z-index:99999;text-align:center;font-family:monospace;"></div>
+    
 
     <div class="game-buttons">
       <button class="btn btn-blue btn-small" onclick="speakWord()">🔈 听发音</button>
@@ -743,11 +743,7 @@ function renderWord() {
     void tray.offsetHeight;
     void cookieTray.offsetHeight;
 
-    // Update debug
-    const dbg = document.getElementById('iosDebug');
-    if (dbg) {
-      dbg.textContent = `cookies:${cookieTray.children.length} slots:${tray.children.length} word:${state.currentWord}`;
-    }
+    
   });
 
   // DO NOT auto-speak - requires user gesture on mobile
