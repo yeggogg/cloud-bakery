@@ -965,18 +965,21 @@ function playSound(type) {
 // Uses Youdao dict TTS (free, returns MP3, no API key needed)
 // type=2 = UK English, clearer for phonics
 const TTS_BASE = 'https://dict.youdao.com/dictvoice?type=2&audio=';
-const ttsAudio = document.getElementById('ttsAudio');
+// Lazy-get audio element (may not exist at script parse time)
+function _getTTS() { return document.getElementById('ttsAudio'); }
 
 // Pre-set audio src when a new word loads
 function preloadWordAudio(word) {
-  ttsAudio.src = TTS_BASE + encodeURIComponent(word);
+  const audio = _getTTS();
+  if (!audio) return;
+  audio.src = TTS_BASE + encodeURIComponent(word);
   // Force load (some browsers need this)
-  ttsAudio.load();
+  audio.load();
 }
 
 function speakWord() {
-  if (!state.currentWord) return;
-  const audio = ttsAudio;
+  const audio = _getTTS();
+  if (!audio) return;
   // Ensure src is set for current word
   const expectedSrc = TTS_BASE + encodeURIComponent(state.currentWord);
   if (audio.src !== expectedSrc) {
