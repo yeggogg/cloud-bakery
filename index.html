@@ -11,39 +11,102 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-tap-highlight-color: transparent; }
 :root {
-  --blue: #A8D8EA; --pink: #FFC8DD; --lavender: #CDB4DB;
+  --blue: #A8D8EA; --blue2: #7CB8D4; --pink: #FFC8DD; --pink2: #FFA8C5; --lavender: #CDB4DB;
   --cream: #FFF5E4; --yellow: #FFE5B4; --white: #FFF;
   --text: #5B4B5A; --milk: #BDE0FE; --gold: #FFC107;
   --green: #A8E6CF; --red: #FF8A80;
 }
 body {
   font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
-  background: linear-gradient(180deg, #B8DFF0 0%, #E8D5F5 50%, #FFF5E4 100%);
+  background: linear-gradient(170deg, #C9E8F5 0%, #D5E8F8 15%, #E8D5F5 45%, #F5DCE8 65%, #FFF5E4 100%);
   min-height: 100vh; overflow-x: hidden; color: var(--text);
   user-select: none; -webkit-user-select: none; touch-action: manipulation;
 }
+/* Star sparkle background particles */
+body::before {
+  content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 40% 15%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1.5px 1.5px at 60% 50%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 80% 25%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1.5px 1.5px at 10% 65%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 50% 80%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(2px 2px at 30% 90%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,0.5), transparent);
+}
+
+/* ===================== CINNAMOROLL SVG CHARACTER ===================== */
+.cinna-svg-wrap {
+  position: relative; display: inline-block;
+  width: 90px; height: 90px;
+  animation: cinna-bounce 2.5s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(100,150,200,0.25));
+}
+@keyframes cinna-bounce {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-12px) rotate(1deg); }
+}
+.cinna-svg-wrap.happy {
+  animation: cinna-happy 0.5s ease-in-out;
+}
+.cinna-svg-wrap.sad {
+  animation: cinna-sad 0.5s ease-in-out forwards;
+}
+.cinna-svg-wrap.flying {
+  animation: cinna-fly 1s ease-in-out forwards;
+}
+@keyframes cinna-happy {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25) rotate(-5deg); }
+}
+@keyframes cinna-sad {
+  0% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(-12deg) translateY(5px); }
+  60% { transform: rotate(-6deg) translateY(2px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+@keyframes cinna-fly {
+  0% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-35px) rotate(-8deg); }
+  50% { transform: translateY(-45px) rotate(5deg); }
+  75% { transform: translateY(-20px) rotate(-3deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+/* Cinnamoroll character states via SVG class */
+.cinna-svg-wrap .cinna-body { transition: transform 0.3s; }
+.cinna-svg-wrap.sad .cinna-body { transform: translateY(5px); }
 
 /* ===================== CLOUD BACKGROUND ===================== */
-.clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 0; }
+.clouds { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; }
 .cloud {
-  position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%;
-  animation: floatCloud linear infinite;
+  position: absolute; background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.95) 0%, rgba(230,240,255,0.7) 100%);
+  border-radius: 50%; animation: floatCloud linear infinite;
+  box-shadow: 0 4px 15px rgba(160,200,240,0.2);
 }
 .cloud::before, .cloud::after {
   content: ''; position: absolute; background: inherit; border-radius: 50%;
 }
-.cloud1 { width: 120px; height: 50px; top: 8%; left: 10%; animation-duration: 25s; }
-.cloud1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
-.cloud1::after { width: 80px; height: 50px; top: -20px; left: 50px; }
-.cloud2 { width: 100px; height: 40px; top: 20%; right: 15%; animation-duration: 30s; animation-delay: -8s; }
-.cloud2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-.cloud2::after { width: 60px; height: 40px; top: -15px; left: 40px; }
-.cloud3 { width: 90px; height: 35px; top: 60%; left: 5%; animation-duration: 22s; animation-delay: -15s; }
-.cloud3::before { width: 45px; height: 45px; top: -22px; left: 12px; }
-.cloud3::after { width: 55px; height: 35px; top: -12px; left: 35px; }
+.cloud1 { width: 130px; height: 55px; top: 7%; left: 8%; animation-duration: 28s; }
+.cloud1::before { width: 65px; height: 65px; top: -32px; left: 18px; }
+.cloud1::after { width: 85px; height: 55px; top: -22px; left: 52px; }
+.cloud2 { width: 105px; height: 44px; top: 22%; right: 12%; animation-duration: 33s; animation-delay: -10s; }
+.cloud2::before { width: 55px; height: 55px; top: -27px; left: 14px; }
+.cloud2::after { width: 65px; height: 44px; top: -16px; left: 42px; }
+.cloud3 { width: 95px; height: 38px; top: 58%; left: 4%; animation-duration: 24s; animation-delay: -18s; }
+.cloud3::before { width: 48px; height: 48px; top: -24px; left: 11px; }
+.cloud3::after { width: 58px; height: 38px; top: -13px; left: 37px; }
+.cloud4 { width: 80px; height: 32px; top: 38%; left: 3%; animation-duration: 20s; animation-delay: -5s; }
+.cloud4::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+.cloud4::after { width: 50px; height: 32px; top: -10px; left: 30px; }
+.cloud5 { width: 110px; height: 46px; bottom: 12%; right: 5%; animation-duration: 31s; animation-delay: -20s; }
+.cloud5::before { width: 58px; height: 58px; top: -28px; left: 16px; }
+.cloud5::after { width: 70px; height: 46px; top: -18px; left: 46px; }
 @keyframes floatCloud {
   0% { transform: translateX(0); }
-  50% { transform: translateX(40px); }
+  50% { transform: translateX(35px); }
   100% { transform: translateX(0); }
 }
 
@@ -60,15 +123,15 @@ body {
 
 /* ===================== TITLE SCREEN ===================== */
 #titleScreen { align-items: center; justify-content: center; text-align: center; gap: 20px; padding-top: 40px; }
-.title-cinnamoroll { font-size: 80px; animation: cinnabounce 2s ease-in-out infinite; }
-@keyframes cinnabounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
+.title-cinnamoroll { display: flex; align-items: center; justify-content: center; animation: none; }
+@keyframes cinna-title-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.05); }
 }
 .title-shop {
-  background: var(--white); border-radius: 30px; padding: 6px 24px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  display: inline-block;
+  background: rgba(255,255,255,0.9); border-radius: 30px; padding: 8px 28px;
+  box-shadow: 0 4px 20px rgba(100,150,200,0.15);
+  display: inline-block; border: 1.5px solid rgba(168,216,234,0.3);
 }
 .title-shop h1 { font-size: 28px; font-weight: 800; color: var(--blue); }
 .title-shop p { font-size: 13px; color: #999; margin-top: -4px; }
@@ -101,12 +164,20 @@ body {
 
 .level-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
 .level-card {
-  background: var(--white); border-radius: 20px; padding: 16px;
-  cursor: pointer; transition: all 0.2s; position: relative;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.06); text-align: center;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,245,245,0.9) 100%);
+  border-radius: 20px; padding: 16px;
+  cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border: 1.5px solid rgba(200,180,220,0.15);
 }
-.level-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+.level-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--pink), var(--lavender));
+  opacity: 0; transition: opacity 0.25s;
+}
+.level-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+.level-card:hover::before { opacity: 1; }
 .level-card.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
 .level-card.locked:hover { transform: none; box-shadow: 0 3px 10px rgba(0,0,0,0.06); }
 .level-emoji { font-size: 40px; }
@@ -143,27 +214,6 @@ body {
 .cinna-character {
   font-size: 60px; transition: all 0.3s;
   position: relative; display: inline-block;
-}
-.cinna-character.happy { animation: cinnaHappy 0.5s ease-in-out; }
-.cinna-character.sad { animation: cinnaSad 0.5s ease-in-out; transform: rotate(-10deg); }
-.cinna-character.flying {
-  animation: cinnaFly 1s ease-in-out;
-}
-@keyframes cinnaHappy {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-@keyframes cinnaSad {
-  0% { transform: rotate(0); }
-  25% { transform: rotate(-15deg); }
-  50% { transform: rotate(0); }
-  75% { transform: rotate(-8deg); }
-}
-@keyframes cinnaFly {
-  0% { transform: translateY(0) rotate(0); }
-  30% { transform: translateY(-40px) rotate(-5deg); }
-  60% { transform: translateY(-20px) rotate(3deg); }
-  100% { transform: translateY(0) rotate(0); }
 }
 
 /* Customer bubble */
@@ -233,21 +283,37 @@ body {
   gap: 8px; padding: 12px;
   background: rgba(255,255,255,0.5); border-radius: 20px;
   min-height: 60px;
+  border: 2px dashed rgba(205,180,219,0.3);
 }
 .cookie {
   width: 52px; height: 52px; border-radius: 50%;
-  background: linear-gradient(135deg, #F5D5A0 0%, #E8C07A 100%);
+  background: radial-gradient(circle at 45% 40%, #F5D5A0 0%, #E8C07A 60%, #D4A65A 100%);
   color: #6B4226; font-size: 22px; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.12), inset 0 -2px 3px rgba(0,0,0,0.1);
+  cursor: pointer; box-shadow:
+    0 3px 6px rgba(0,0,0,0.12),
+    inset 0 -3px 4px rgba(139,90,43,0.15),
+    inset 0 2px 3px rgba(255,255,255,0.4);
   transition: all 0.15s; position: relative;
-  border: 2px solid rgba(139,90,43,0.2);
+  border: 2px solid rgba(139,90,43,0.15);
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
+/* Chocolate chips */
+.cookie::before {
+  content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
+  background:
+    radial-gradient(1.5px 1.5px at 30% 28%, #5C3D2E 80%, transparent),
+    radial-gradient(1.8px 1.8px at 65% 32%, #5C3D2E 80%, transparent),
+    radial-gradient(1.3px 1.3px at 48% 55%, #5C3D2E 80%, transparent),
+    radial-gradient(1.5px 1.5px at 72% 62%, #5C3D2E 80%, transparent),
+    radial-gradient(1.2px 1.2px at 22% 60%, #5C3D2E 80%, transparent);
+  pointer-events: none;
+}
 .cookie::after {
-  content: ''; position: absolute; width: 40px; height: 20px;
-  background: rgba(255,255,255,0.3); border-radius: 50%;
-  top: 6px; pointer-events: none;
+  content: ''; position: absolute; width: 40px; height: 18px;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 5px; pointer-events: none;
 }
 .cookie:active { transform: scale(0.9); background: linear-gradient(135deg, #E8C07A 0%, #D4A65A 100%); }
 .cookie.used {
@@ -260,14 +326,16 @@ body {
 /* ===================== RESULT OVERLAY ===================== */
 .result-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4); display: none;
-  align-items: center; justify-content: center; z-index: 100;
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; z-index: 100;
 }
 .result-overlay.active { display: flex; }
 .result-card {
-  background: var(--white); border-radius: 24px; padding: 30px 20px;
+  background: linear-gradient(160deg, #FFF 0%, #F8F0FF 100%);
+  border-radius: 28px; padding: 32px 24px;
   text-align: center; max-width: 320px; width: 90%;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 48px rgba(100,80,160,0.2), 0 2px 8px rgba(0,0,0,0.08);
+  border: 1.5px solid rgba(200,180,240,0.25);
 }
 .result-emoji { font-size: 60px; margin-bottom: 8px; }
 .result-stars { font-size: 36px; margin: 8px 0; }
@@ -343,7 +411,7 @@ body {
   .cookie-tray { gap: 6px; padding: 8px; }
   .tray-area { gap: 6px; padding: 8px; }
   .status-bar { padding: 6px 12px; font-size: 13px; }
-  .cinna-character { font-size: 48px; }
+  .cinna-svg-wrap { width: 70px; height: 70px; }
   .result-card { padding: 24px 16px; }
   .level-grid { gap: 8px; }
   .level-card { padding: 12px 8px; border-radius: 16px; }
@@ -361,7 +429,7 @@ body {
 @media (max-height: 600px) {
   .title-cinnamoroll { font-size: 40px; }
   .title-shop h1 { font-size: 18px; }
-  .cinna-character { font-size: 40px; }
+  .cinna-svg-wrap { width: 56px; height: 56px; }
   .customer-emoji { font-size: 24px; }
   .customer-text { font-size: 16px; }
   .customer-bubble { padding: 8px 14px; }
@@ -377,6 +445,8 @@ body {
   <div class="cloud cloud1"></div>
   <div class="cloud cloud2"></div>
   <div class="cloud cloud3"></div>
+  <div class="cloud cloud4"></div>
+  <div class="cloud cloud5"></div>
 </div>
 
 <!-- ===================== MAIN CONTAINER ===================== -->
@@ -385,7 +455,27 @@ body {
   <!-- 🏠 Title Screen -->
   <div id="titleScreen" class="screen active">
     <div class="title-ears">🐾 🐾</div>
-    <div class="title-cinnamoroll">🐶☁️</div>
+        <div class="title-cinnamoroll cinna-svg-wrap">
+      <svg viewBox="0 0 100 100" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="72" rx="38" ry="18" fill="#E8F4FD" stroke="#B8D8F0" stroke-width="1.5"/>
+        <ellipse cx="50" cy="62" rx="24" ry="22" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
+        <circle cx="50" cy="42" r="18" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
+        <ellipse cx="34" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(-5,34,18)"/>
+        <ellipse cx="34" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(-5,34,16)"/>
+        <ellipse cx="66" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(5,66,18)"/>
+        <ellipse cx="66" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(5,66,16)"/>
+        <circle cx="43" cy="40" r="2.8" fill="#4A7AB5"/>
+        <circle cx="57" cy="40" r="2.8" fill="#4A7AB5"/>
+        <circle cx="44" cy="39" r="1" fill="#FFF" opacity="0.9"/>
+        <circle cx="58" cy="39" r="1" fill="#FFF" opacity="0.9"/>
+        <ellipse cx="50" cy="46" rx="2.5" ry="1.8" fill="#E898A0"/>
+        <path d="M47 48 Q50 52 53 48" stroke="#D48A8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="38" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
+        <ellipse cx="62" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
+        <path d="M24 14 Q28 4 36 10 Q40 18 34 20 Q26 18 24 14Z" fill="#7BB8E8" stroke="#5A9FD4" stroke-width="0.8"/>
+        <circle cx="31" cy="14" r="2.5" fill="#A8D8F0"/>
+      </svg>
+    </div>
     <div class="title-shop">
       <h1>Cloud Bakery</h1>
       <p>云朵烘焙坊 · Cinnamoroll</p>
@@ -417,7 +507,39 @@ body {
     </div>
 
     <div class="cinna-area">
-      <div class="cinna-character" id="cinnaChar">🐶☁️</div>
+      <div class="cinna-svg-wrap" id="cinnaChar">
+        <!-- Cinnamoroll SVG Character -->
+        <svg viewBox="0 0 100 100" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+          <!-- Cloud base -->
+          <ellipse cx="50" cy="72" rx="38" ry="18" fill="#E8F4FD" stroke="#B8D8F0" stroke-width="1.5"/>
+          <!-- Body -->
+          <ellipse cx="50" cy="62" rx="24" ry="22" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
+          <!-- Head -->
+          <circle cx="50" cy="42" r="18" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
+          <!-- Left ear (long, floppy) -->
+          <ellipse cx="34" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(-5,34,18)"/>
+          <ellipse cx="34" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(-5,34,16)"/>
+          <!-- Right ear (long, floppy) -->
+          <ellipse cx="66" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(5,66,18)"/>
+          <ellipse cx="66" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(5,66,16)"/>
+          <!-- Eyes -->
+          <circle cx="43" cy="40" r="2.8" fill="#4A7AB5"/>
+          <circle cx="57" cy="40" r="2.8" fill="#4A7AB5"/>
+          <circle cx="44" cy="39" r="1" fill="#FFF" opacity="0.9"/>
+          <circle cx="58" cy="39" r="1" fill="#FFF" opacity="0.9"/>
+          <!-- Nose -->
+          <ellipse cx="50" cy="46" rx="2.5" ry="1.8" fill="#E898A0"/>
+          <!-- Mouth -->
+          <path d="M47 48 Q50 52 53 48" stroke="#D48A8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          <!-- Left cheek blush -->
+          <ellipse cx="38" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
+          <!-- Right cheek blush -->
+          <ellipse cx="62" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
+          <!-- Blue bow on left ear -->
+          <path d="M24 14 Q28 4 36 10 Q40 18 34 20 Q26 18 24 14Z" fill="#7BB8E8" stroke="#5A9FD4" stroke-width="0.8"/>
+          <circle cx="31" cy="14" r="2.5" fill="#A8D8F0"/>
+        </svg>
+      </div>
     </div>
 
     <div class="customer-area">
@@ -567,7 +689,6 @@ const WORD_BANK = {
 
 // ==================== CUSTOMER ANIMALS ====================
 const CUSTOMERS = ['🐱','🐰','🐧','🐻','🐼','🦊','🐸','🐨','🐯','🦁','🐮','🐷','🐵','🐔','🐶'];
-const CINNAMOOD = { normal: '🐶☁️', happy: '🐶✨', sad: '🐶💧', fly: '🐶🌈' };
 
 // ==================== GAME STATE ====================
 let state = {
@@ -714,8 +835,7 @@ function renderWord() {
     CUSTOMERS[state.wordIndex % CUSTOMERS.length];
   document.getElementById('customerWord').textContent =
     '_ '.repeat(wordData.word.length).trim();
-  document.getElementById('cinnaChar').textContent = CINNAMOOD.normal;
-  document.getElementById('cinnaChar').className = 'cinna-character';
+  document.getElementById('cinnaChar').className = 'cinna-svg-wrap';
 
   // Build tray slots - use innerHTML with rAF for iOS Safari compatibility
   const tray = document.getElementById('trayArea');
@@ -833,8 +953,7 @@ function dropCookie(cookieId, slotIndex) {
     state.mistakes++;
     state.wordMistakes[state.currentWord] = (state.wordMistakes[state.currentWord] || 0) + 1;
     const cinna = document.getElementById('cinnaChar');
-    cinna.textContent = '🐶💧';
-    cinna.className = 'cinna-character sad';
+    cinna.className = 'cinna-svg-wrap sad';
     playSound('error');
     // Return the letter back
     slot.textContent = letter + ' ✗';
@@ -843,8 +962,7 @@ function dropCookie(cookieId, slotIndex) {
       slot.classList.remove('wrong');
       slot.textContent = '';
       cookie.classList.remove('used');
-      cinna.textContent = CINNAMOOD.normal;
-      cinna.className = 'cinna-character';
+      cinna.className = 'cinna-svg-wrap';
     }, 600);
     saveState();
   }
@@ -856,8 +974,7 @@ function wordComplete() {
   state.totalCorrect++;
 
   const cinna = document.getElementById('cinnaChar');
-  cinna.textContent = '🐶🌈';
-  cinna.className = 'cinna-character flying';
+  cinna.className = 'cinna-svg-wrap flying';
 
   // Calculate stars
   let stars = 3;
