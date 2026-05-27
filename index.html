@@ -436,9 +436,189 @@ body::before {
   #gameScreen { gap: 4px; }
   .status-bar { padding: 4px 10px; font-size: 12px; }
 }
+
+
+/* ===================== ENHANCED ART v3 ===================== */
+/* Background image */
+body::after {
+  content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: url('assets/bg.jpg') center/cover no-repeat;
+  opacity: 0.12; pointer-events: none; z-index: -1;
+}
+
+/* Glassmorphism cards */
+.level-card, .shop-item, .stat-card, .customer-bubble, .result-card, .stage-card {
+  background: rgba(255,255,255,0.75) !important;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.5) !important;
+}
+
+/* Better tray slots */
+.tray-slot {
+  background: rgba(255,245,228,0.8) !important;
+  border: 2.5px dashed rgba(205,180,219,0.5) !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tray-slot.filled {
+  background: linear-gradient(135deg, #A8D8EA, #7CB8D4) !important;
+  border: 2.5px solid #7CB8D4 !important;
+  box-shadow: 0 4px 12px rgba(124,184,212,0.4), inset 0 1px 2px rgba(255,255,255,0.5);
+  transform: scale(1.05);
+}
+.tray-slot.wrong {
+  background: linear-gradient(135deg, #FF8A80, #FF5252) !important;
+  border: 2.5px solid #FF5252 !important;
+  box-shadow: 0 4px 12px rgba(255,82,82,0.4);
+}
+
+/* 3D Cookie with icing */
+.cookie {
+  background: radial-gradient(circle at 40% 35%, #FDE8C8 0%, #F5D09A 40%, #E8B86D 70%, #D4A04A 100%) !important;
+  box-shadow:
+    0 4px 8px rgba(0,0,0,0.15),
+    0 2px 4px rgba(0,0,0,0.1),
+    inset 0 -4px 6px rgba(139,90,43,0.2),
+    inset 0 3px 5px rgba(255,255,255,0.5) !important;
+  border: 2px solid rgba(180,130,60,0.3) !important;
+  position: relative;
+  overflow: hidden;
+}
+/* Icing on top */
+.cookie::after {
+  content: ''; position: absolute; top: -2px; left: 5%; width: 90%; height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 100%);
+  border-radius: 50% 50% 40% 40%;
+  pointer-events: none;
+}
+.cookie:active {
+  transform: scale(0.88) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12), inset 0 -2px 3px rgba(139,90,43,0.15) !important;
+}
+
+/* Cinna character image states */
+.cinna-svg-wrap img {
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  filter: drop-shadow(0 4px 12px rgba(100,150,200,0.3));
+}
+.cinna-svg-wrap.sad img {
+  animation: cinna-sad-img 0.5s ease-in-out;
+  filter: drop-shadow(0 4px 12px rgba(100,150,200,0.3)) saturate(0.7);
+}
+.cinna-svg-wrap.flying img {
+  animation: cinna-fly-img 0.8s ease-in-out;
+}
+@keyframes cinna-sad-img {
+  0%,100% { transform: rotate(0); }
+  30% { transform: rotate(-10deg) translateY(3px); }
+  60% { transform: rotate(-5deg); }
+}
+@keyframes cinna-fly-img {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-20px) scale(1.1) rotate(-5deg); }
+  60% { transform: translateY(-30px) scale(1.15) rotate(5deg); }
+  100% { transform: translateY(0) scale(1) rotate(0); }
+}
+
+/* Sparkle particles */
+.sparkle {
+  position: fixed; pointer-events: none; z-index: 0;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: #FFD700; opacity: 0;
+  animation: sparkle-float 4s ease-in-out infinite;
+}
+@keyframes sparkle-float {
+  0%,100% { opacity: 0; transform: translateY(0) scale(0.5); }
+  50% { opacity: 0.8; transform: translateY(-30px) scale(1); }
+}
+
+/* Floating hearts background */
+.float-heart {
+  position: fixed; pointer-events: none; z-index: 0;
+  font-size: 14px; opacity: 0;
+  animation: heart-drift 8s ease-in-out infinite;
+}
+@keyframes heart-drift {
+  0% { opacity: 0; transform: translateY(0) rotate(0deg); }
+  20% { opacity: 0.5; }
+  80% { opacity: 0.3; }
+  100% { opacity: 0; transform: translateY(-120px) rotate(20deg); }
+}
+
+/* Better buttons with gradient */
+.btn-blue {
+  background: linear-gradient(135deg, #A8D8EA 0%, #7CB8D4 100%) !important;
+  box-shadow: 0 4px 15px rgba(124,184,212,0.4) !important;
+}
+.btn-blue:active { box-shadow: 0 2px 8px rgba(124,184,212,0.3) !important; }
+.btn-pink {
+  background: linear-gradient(135deg, #FFC8DD 0%, #FFA8C5 100%) !important;
+  box-shadow: 0 4px 15px rgba(255,168,197,0.4) !important;
+}
+.btn-lavender {
+  background: linear-gradient(135deg, #CDB4DB 0%, #B8A0C8 100%) !important;
+  box-shadow: 0 4px 15px rgba(184,160,200,0.4) !important;
+}
+
+/* Level card hover glow */
+.level-card:not(.locked):hover {
+  box-shadow: 0 8px 25px rgba(168,216,234,0.3), 0 0 20px rgba(255,200,221,0.2) !important;
+}
+
+/* Customer area image */
+.customer-emoji { font-size: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+
+/* Status bar glassmorphism */
+.status-bar {
+  background: rgba(255,255,255,0.7) !important;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important;
+}
+
+/* Sanrio logo in title */
+.title-logo {
+  width: 60px; height: auto; opacity: 0.6;
+  margin-top: 4px;
+}
+
+/* Better result overlay */
+.result-overlay {
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.result-card {
+  box-shadow: 0 16px 48px rgba(100,80,160,0.25), 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+
+/* Tray area styling */
+.tray-area {
+  background: rgba(255,255,255,0.5) !important;
+  border: 3px dashed rgba(168,216,234,0.5) !important;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
+}
+
+/* Cookie tray */
+.cookie-tray {
+  background: rgba(255,255,255,0.4) !important;
+  border: 2px dashed rgba(205,180,219,0.3) !important;
+}
+
+/* Title ears animation */
+.title-ears {
+  animation: ears-wiggle 3s ease-in-out infinite;
+}
+@keyframes ears-wiggle {
+  0%,100% { transform: rotate(0); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
 </style>
 </head>
 <body>
+<!-- Sparkle Particles -->
+<div id="sparkles"></div>
+
 
 <!-- Floating Clouds -->
 <div class="clouds">
@@ -456,29 +636,12 @@ body::before {
   <div id="titleScreen" class="screen active">
     <div class="title-ears">🐾 🐾</div>
         <div class="title-cinnamoroll cinna-svg-wrap">
-      <svg viewBox="0 0 100 100" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="50" cy="72" rx="38" ry="18" fill="#E8F4FD" stroke="#B8D8F0" stroke-width="1.5"/>
-        <ellipse cx="50" cy="62" rx="24" ry="22" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
-        <circle cx="50" cy="42" r="18" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
-        <ellipse cx="34" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(-5,34,18)"/>
-        <ellipse cx="34" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(-5,34,16)"/>
-        <ellipse cx="66" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(5,66,18)"/>
-        <ellipse cx="66" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(5,66,16)"/>
-        <circle cx="43" cy="40" r="2.8" fill="#4A7AB5"/>
-        <circle cx="57" cy="40" r="2.8" fill="#4A7AB5"/>
-        <circle cx="44" cy="39" r="1" fill="#FFF" opacity="0.9"/>
-        <circle cx="58" cy="39" r="1" fill="#FFF" opacity="0.9"/>
-        <ellipse cx="50" cy="46" rx="2.5" ry="1.8" fill="#E898A0"/>
-        <path d="M47 48 Q50 52 53 48" stroke="#D48A8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="38" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
-        <ellipse cx="62" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
-        <path d="M24 14 Q28 4 36 10 Q40 18 34 20 Q26 18 24 14Z" fill="#7BB8E8" stroke="#5A9FD4" stroke-width="0.8"/>
-        <circle cx="31" cy="14" r="2.5" fill="#A8D8F0"/>
-      </svg>
+      <img src="assets/cinnamoroll.png" alt="Cinnamoroll" style="width:120px;height:120px;object-fit:contain;" />
     </div>
     <div class="title-shop">
       <h1>Cloud Bakery</h1>
       <p>云朵烘焙坊 · Cinnamoroll</p>
+    <img src="assets/sanrio-logo.png" class="title-logo" alt="Sanrio" />
     </div>
     <div class="title-buttons">
       <button class="btn btn-blue" onclick="showLevel()">🎮 开始游戏</button>
@@ -508,37 +671,7 @@ body::before {
 
     <div class="cinna-area">
       <div class="cinna-svg-wrap" id="cinnaChar">
-        <!-- Cinnamoroll SVG Character -->
-        <svg viewBox="0 0 100 100" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
-          <!-- Cloud base -->
-          <ellipse cx="50" cy="72" rx="38" ry="18" fill="#E8F4FD" stroke="#B8D8F0" stroke-width="1.5"/>
-          <!-- Body -->
-          <ellipse cx="50" cy="62" rx="24" ry="22" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
-          <!-- Head -->
-          <circle cx="50" cy="42" r="18" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2"/>
-          <!-- Left ear (long, floppy) -->
-          <ellipse cx="34" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(-5,34,18)"/>
-          <ellipse cx="34" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(-5,34,16)"/>
-          <!-- Right ear (long, floppy) -->
-          <ellipse cx="66" cy="18" rx="8" ry="20" fill="#FFFDF9" stroke="#E8E0D8" stroke-width="1.2" transform="rotate(5,66,18)"/>
-          <ellipse cx="66" cy="16" rx="5.5" ry="16" fill="#B8D8F0" transform="rotate(5,66,16)"/>
-          <!-- Eyes -->
-          <circle cx="43" cy="40" r="2.8" fill="#4A7AB5"/>
-          <circle cx="57" cy="40" r="2.8" fill="#4A7AB5"/>
-          <circle cx="44" cy="39" r="1" fill="#FFF" opacity="0.9"/>
-          <circle cx="58" cy="39" r="1" fill="#FFF" opacity="0.9"/>
-          <!-- Nose -->
-          <ellipse cx="50" cy="46" rx="2.5" ry="1.8" fill="#E898A0"/>
-          <!-- Mouth -->
-          <path d="M47 48 Q50 52 53 48" stroke="#D48A8A" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-          <!-- Left cheek blush -->
-          <ellipse cx="38" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
-          <!-- Right cheek blush -->
-          <ellipse cx="62" cy="45" rx="5" ry="3" fill="#FFD5D5" opacity="0.6"/>
-          <!-- Blue bow on left ear -->
-          <path d="M24 14 Q28 4 36 10 Q40 18 34 20 Q26 18 24 14Z" fill="#7BB8E8" stroke="#5A9FD4" stroke-width="0.8"/>
-          <circle cx="31" cy="14" r="2.5" fill="#A8D8F0"/>
-        </svg>
+        <img id="cinnaImg" src="assets/cinnamoroll.png" alt="Cinnamoroll" style="width:100px;height:100px;object-fit:contain;" />
       </div>
     </div>
 
@@ -836,6 +969,7 @@ function renderWord() {
   document.getElementById('customerWord').textContent =
     '_ '.repeat(wordData.word.length).trim();
   document.getElementById('cinnaChar').className = 'cinna-svg-wrap';
+    document.getElementById('cinnaImg').src = 'assets/cinnamoroll.png';
 
   // Build tray slots - use innerHTML with rAF for iOS Safari compatibility
   const tray = document.getElementById('trayArea');
@@ -954,6 +1088,7 @@ function dropCookie(cookieId, slotIndex) {
     state.wordMistakes[state.currentWord] = (state.wordMistakes[state.currentWord] || 0) + 1;
     const cinna = document.getElementById('cinnaChar');
     cinna.className = 'cinna-svg-wrap sad';
+    document.getElementById('cinnaImg').src = 'assets/cinnamoroll-jump.png';
     playSound('error');
     // Return the letter back
     slot.textContent = letter + ' ✗';
@@ -963,6 +1098,7 @@ function dropCookie(cookieId, slotIndex) {
       slot.textContent = '';
       cookie.classList.remove('used');
       cinna.className = 'cinna-svg-wrap';
+    document.getElementById('cinnaImg').src = 'assets/cinnamoroll.png';
     }, 600);
     saveState();
   }
@@ -975,6 +1111,7 @@ function wordComplete() {
 
   const cinna = document.getElementById('cinnaChar');
   cinna.className = 'cinna-svg-wrap flying';
+    document.getElementById('cinnaImg').src = 'assets/cinnamoroll-eat.png';
 
   // Calculate stars
   let stars = 3;
@@ -1201,6 +1338,47 @@ Object.keys(WORD_BANK).forEach(k => {
 document.addEventListener('DOMContentLoaded', () => {
   // Ready!
 });
+
+
+// ==================== SPARKLE PARTICLES ====================
+function createSparkles() {
+  const container = document.getElementById('sparkles');
+  if (!container) return;
+  const colors = ['#FFD700','#FF69B4','#87CEEB','#DDA0DD','#98FB98','#FFB6C1'];
+  for (let i = 0; i < 15; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.background = colors[Math.floor(Math.random() * colors.length)];
+    s.style.animationDelay = (Math.random() * 4) + 's';
+    s.style.animationDuration = (3 + Math.random() * 3) + 's';
+    s.style.width = s.style.height = (2 + Math.random() * 4) + 'px';
+    container.appendChild(s);
+  }
+  // Floating hearts
+  for (let i = 0; i < 8; i++) {
+    const h = document.createElement('div');
+    h.className = 'float-heart';
+    h.textContent = ['💕','💖','✨','🩷','🤍'][Math.floor(Math.random()*5)];
+    h.style.left = Math.random() * 100 + '%';
+    h.style.bottom = Math.random() * 30 + '%';
+    h.style.animationDelay = (Math.random() * 8) + 's';
+    h.style.animationDuration = (6 + Math.random() * 6) + 's';
+    container.appendChild(h);
+  }
+}
+createSparkles();
+
+// ==================== ENHANCED COOKIE COLORS ====================
+const COOKIE_COLORS = [
+  'radial-gradient(circle at 40% 35%, #FDE8C8 0%, #F5D09A 40%, #E8B86D 70%, #D4A04A 100%)',
+  'radial-gradient(circle at 40% 35%, #FFD6E0 0%, #FFB3C6 40%, #FF8FAB 70%, #E8708A 100%)',
+  'radial-gradient(circle at 40% 35%, #D6F0FF 0%, #A8D8EA 40%, #7CB8D4 70%, #5A9FD4 100%)',
+  'radial-gradient(circle at 40% 35%, #E8D6F0 0%, #CDB4DB 40%, #B8A0C8 70%, #9B85B0 100%)',
+  'radial-gradient(circle at 40% 35%, #D6F5D6 0%, #A8E6CF 40%, #7DD8A0 70%, #5BC878 100%)',
+];
+
 </script>
   <!-- Hidden TTS audio element for WeChat/Android/iOS compatibility -->
   <audio id="ttsAudio" preload="none" style="display:none"></audio>
