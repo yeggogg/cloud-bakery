@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🎀 玉桂狗厨房 Cinnamoroll Kitchen</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; font-family:'PingFang SC','Segoe UI',sans-serif;
+  overflow:hidden; touch-action:none;
+  -webkit-user-select:none; user-select:none;
+}
+#wrap { display:flex; flex-direction:column; align-items:center; gap:6px; }
+#hud {
+  display:flex; align-items:center; gap:16px; width:100%; max-width:800px;
+  padding:8px 16px; background:rgba(255,255,255,0.95);
+  border-radius:14px; box-shadow:0 4px 20px rgba(255,150,200,0.3);
+  flex-wrap:wrap; justify-content:center;
+}
+.hud-item { display:flex; align-items:center; gap:5px; font-size:14px; font-weight:700; }
+.hud-item .ico { font-size:20px; }
+.hud-score { color:#e84393; }
+.hud-time { color:#6c5ce7; }
+.hud-order { color:#00b894; }
+.hud-combo { color:#fdcb6e; }
+#canvas {
+  border-radius:14px; box-shadow:0 8px 32px rgba(255,150,200,0.4);
+  cursor:pointer; max-width:100vw; max-height:68vh;
+}
+#ctrl {
+  display:none; width:100%; max-width:800px;
+}
+.dpad {
+  display:grid; grid-template-columns:56px 56px 56px;
+  grid-template-rows:56px 56px 56px; gap:3px; justify-content:center;
+}
+.dpad button {
+  width:56px; height:56px; border:none; border-radius:12px;
+  background:rgba(255,255,255,0.9); font-size:22px; cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  -webkit-tap-highlight-color:transparent;
+}
+.dpad button:active { background:#fdcb6e; transform:scale(0.9); }
+.dpad .gap { background:transparent; box-shadow:none; }
+.act-row { display:flex; gap:8px; justify-content:center; margin-top:6px; }
+.act-row button {
+  padding:12px 24px; border:none; border-radius:22px;
+  font-size:15px; font-weight:700; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+#btn-act {
+  background:linear-gradient(135deg,#fd79a8,#e84393); color:#fff;
+  box-shadow:0 4px 12px rgba(232,67,147,0.4);
+}
+#btn-act:active { transform:scale(0.93); }
+@media (max-width:768px) {
+  #ctrl { display:block; }
+  #canvas { max-height:50vh; }
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="hud">
+    <div class="hud-item hud-score"><span class="ico">⭐</span>得分:<span id="s">0</span></div>
+    <div class="hud-item hud-time"><span class="ico">⏱️</span>时间:<span id="t">180</span>s</div>
+    <div class="hud-item hud-order"><span class="ico">📋</span>完成:<span id="o">0</span></div>
+    <div class="hud-item hud-combo"><span class="ico">🔥</span>连击:<span id="c">0</span></div>
+  </div>
+  <canvas id="canvas" width="800" height="520"></canvas>
+  <div id="ctrl">
+    <div class="dpad">
+      <button class="gap"></button><button id="bu">⬆️</button><button class="gap"></button>
+      <button id="bl">⬅️</button><button class="gap"></button><button id="br">➡️</button>
+      <button class="gap"></button><button id="bd">⬇️</button><button class="gap"></button>
+    </div>
+    <div class="act-row"><button id="btn-act">🖐️ 拿取/放下</button></div>
+  </div>
+</div>
+
+<script>
+// ==================== GAME ENGINE ====================
+const cv = document.getElementById('canvas');
+const cx = cv.getContext('2d');
+const W=800, H=520;
+
+// --- State ---
+const S = { MENU:0, PLAY:1, OVER:2 };
+let gs = S.MENU, score=0, orders=0, combo=0, time=180, ti=null;
+let shakeTimer=0, shakeIntensity=0;
+
+// --- Input ---
+const K = {};
+window.addEventListener('keydown',e=>{K[e.key]=true;e.preventDefault();});
+window.addEventListener('keyup',e=>{K[e.key]=false;e.preventDefault();});
+const isMob = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||innerWidth<769;
+if(isMob) document.getElementById('ctrl').style.display='block';
+['bu','bd','bl','br'].forEach((id,k)=>{
+  const b=document.getElementById(id);
+  if(!b)return;
+  const key=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'][k];
+  b.addEventListener('pointerdown',e=>{e.preventDefault();K[key]=true;});
+  b.addEventListener('pointerup',e=>{K[key]=false;});
+  b.addEventListener('pointerleave',e=>{K[key]=false;});
+});
+document.getElementById('btn-act').addEventListener('pointerdown',e=>{e.preventDefault();K[' ']=true;});
+document.getElementById('btn-act').addEventListener('pointerup',e=>{K[' ']=false;});
+
+// --- Player ---
+const P = { x:400, y:380, w:34, h:34, spd:3.0, hold:null, face:0, af:0, at:0 };
+
+// --- Recipes: ingredient -> process -> dish ---
+const RECIPES = [
+  { id:'sushi', name:'寿司', icon:'🍣', ing:'鱼', proc:'chop', color:'#ff7675', pts:60 },
+  { id:'salad', name:'沙拉', icon:'🥗', ing:'蔬菜', proc:'chop', color:'#55efc4', pts:45 },
+  { id:'rice', name:'炒饭', icon:'🍚', ing:'米饭', proc:'stove', color:'#ffeaa7', pts:70 },
+  { id:'fish', name:'烤鱼', icon:'🐟', ing:'鱼', proc:'stove', color:'#fab1a0', pts:65 },
+  { id:'steak', name:'牛排', icon:'🥩', ing:'肉', proc:'stove', color:'#e17055', pts:75 },
+  { id:'soup', name:'汤面', icon:'🍜', ing:'蔬菜', proc:'pot', color:'#81ecec', pts:65 },
+  { id:'stew', name:'炖肉', icon:'🍲', ing:'肉', proc:'pot', color:'#a29bfe', pts:70 },
+];
+const INGREDIENTS = ['米饭','蔬菜','鱼','肉'];
+const ING_ICON = {'米饭':'🍚','蔬菜':'🥬','鱼':'🐟','肉':'🥩'};
+const ING_COLOR = {'米饭':'#fff9e6','蔬菜':'#d4edc9','鱼':'#c8d6e5','肉':'#f8c291'};
+
+// --- Stations ---
+const STATIONS = [
+  { id:'ing', x:80, y:80, w:68, h:68, label:'食材区', color:'#ffeaa7', icon:'🥬' },
+  { id:'chop', x:280, y:80, w:68, h:68, label:'切菜板', color:'#dfe6e9', icon:'🔪' },
+  { id:'stove', x:500, y:80, w:68, h:68, label:'炉灶', color:'#fab1a0', icon:'🍳' },
+  { id:'pot', x:680, y:260, w:68, h:68, label:'汤锅', color:'#81ecec', icon:'🍲' },
+  { id:'serve', x:400, y:420, w:72, h:72, label:'出餐台', color:'#a29bfe', icon:'🍽️' },
+];
+
+// Station processing
+const SS = {
+  chop: { busy:false, prog:0, item:null },
+  stove: { busy:false, prog:0, item:null },
+  pot: { busy:false, prog:0, item:null },
+};
+
+// --- Customers ---
+const CUST_NAMES = ['小猫咪','小兔子','小熊','小企鹅','小仓鼠','小海豹'];
+const CUST_ICONS = ['🐱','🐰','🐻','🐧','🐹','🦭'];
+let customers = [];
+let spawnT = 0;
+const MAX_CUST = 4;
+const PATIENCE = 40;
+
+// --- Particles & floating text ---
+let parts = [];
+let floats = [];
+
+function spawnParts(x,y,color,n=12){
+  for(let i=0;i<n;i++) parts.push({
+    x,y,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4-2,
+    life:1,decay:.02+Math.random()*.04,color,size:2+Math.random()*4
+  });
+}
+function spawnFloat(x,y,text,color='#fff'){
+  floats.push({x,y,text,color,life:1,decay:.02});
+}
+
+// --- Collision ---
+function near(px,py,s){ return Math.abs(px-s.x)<(P.w+s.w)/2+6 && Math.abs(py-s.y)<(P.h+s.h)/2+6; }
+function getStation(px,py){ for(const s of STATIONS) if(near(px,py,s)) return s; return null; }
+
+// --- Spawn customer ---
+function spawnCust(){
+  if(customers.length>=MAX_CUST) return;
+  const r = RECIPES[Math.floor(Math.random()*RECIPES.length)];
+  const ci = Math.floor(Math.random()*CUST_NAMES.length);
+  const x = 50 + customers.length * 105;
+  customers.push({
+    name:CUST_NAMES[ci], icon:CUST_ICONS[ci],
+    recipe:r, patience:PATIENCE, maxP:PATIENCE,
+    x, y:455, served:false, leaving:false, leaveA:0,
+  });
+}
+
+// --- Process stations ---
+function processStation(id){
+  const st = SS[id]; if(!st||!st.busy||!st.item) return;
+  st.prog += 0.022;
+  if(st.prog>=1){
+    st.busy=false; st.prog=0;
+    const sid = STATIONS.find(s=>s.id===id);
+    if(id==='chop') st.item = { type:'chopped', name:st.item.name, icon:'🔪', color:ING_COLOR[st.item.name] };
+    else if(id==='stove') st.item = { type:'cooked', name:st.item.name, icon:'🍳', color:'#fdcb6e', station:'stove' };
+    else if(id==='pot') st.item = { type:'cooked', name:st.item.name, icon:'🍲', color:'#81ecec', station:'pot' };
+    spawnParts(sid.x,sid.y,'#fdcb6e',15);
+    spawnFloat(sid.x,sid.y-30,'完成!','#00b894');
+  }
+}
+
+// --- Find recipe match for held item ---
+function findRecipeMatch(item){
+  if(!item) return null;
+  for(const r of RECIPES){
+    if(item.name === r.ing && (
+      (r.proc==='chop' && item.type==='chopped') ||
+      (r.proc==='stove' && item.type==='cooked' && item.station==='stove') ||
+      (r.proc==='pot' && item.type==='cooked' && item.station==='pot')
+    )) return r;
+  }
+  return null;
+}
+
+// --- Player action ---
+let actCd = 0;
+function doAction(){
+  if(actCd>0) return;
+  actCd = 14;
+  const st = getStation(P.x,P.y);
+  if(!st) return;
+
+  if(st.id==='ing'){
+    if(!P.hold){
+      const ing = INGREDIENTS[Math.floor(Math.random()*INGREDIENTS.length)];
+      P.hold = { type:'raw', name:ing, icon:ING_ICON[ing], color:ING_COLOR[ing] };
+      spawnParts(st.x,st.y,ING_COLOR[ing],8);
+    }
+  } else if(st.id==='chop'){
+    if(!SS.chop.busy && P.hold && P.hold.type==='raw'){
+      SS.chop.busy=true; SS.chop.prog=0; SS.chop.item=P.hold; P.hold=null;
+      spawnParts(st.x,st.y,'#dfe6e9',8);
+    } else if(!SS.chop.busy && SS.chop.item && SS.chop.item.type==='chopped' && !P.hold){
+      P.hold=SS.chop.item; SS.chop.item=null;
+      spawnParts(st.x,st.y,'#55efc4',8);
+    }
+  } else if(st.id==='stove'){
+    if(!SS.stove.busy && P.hold && P.hold.type==='chopped'){
+      SS.stove.busy=true; SS.stove.prog=0; SS.stove.item=P.hold; P.hold=null;
+      spawnParts(st.x,st.y,'#fab1a0',8);
+    } else if(!SS.stove.busy && SS.stove.item && SS.stove.item.type==='cooked' && !P.hold){
+      P.hold=SS.stove.item; SS.stove.item=null;
+      spawnParts(st.x,st.y,'#fdcb6e',8);
+    }
+  } else if(st.id==='pot'){
+    if(!SS.pot.busy && P.hold && P.hold.type==='chopped'){
+      SS.pot.busy=true; SS.pot.prog=0; SS.pot.item=P.hold; P.hold=null;
+      spawnParts(st.x,st.y,'#81ecec',8);
+    } else if(!SS.pot.busy && SS.pot.item && SS.pot.item.type==='cooked' && !P.hold){
+      P.hold=SS.pot.item; SS.pot.item=null;
+      spawnParts(st.x,st.y,'#fdcb6e',8);
+    }
+  } else if(st.id==='serve'){
+    if(P.hold){
+      const recipe = findRecipeMatch(P.hold);
+      if(recipe){
+        // Find matching customer
+        for(const cust of customers){
+          if(cust.served||cust.leaving) continue;
+          if(cust.recipe.id===recipe.id){
+            cust.served=true; cust.leaving=true;
+            P.hold=null;
+            combo++;
+            const bonus = combo>1 ? combo*5 : 0;
+            score += recipe.pts + bonus;
+            orders++;
+            spawnParts(cust.x,cust.y,'#fdcb6e',25);
+            spawnParts(cust.x,cust.y,'#00b894',15);
+            spawnFloat(cust.x,cust.y-20,`+${recipe.pts+bonus}`,'#fdcb6e');
+            if(combo>=3) spawnFloat(cust.x,cust.y-40,`🔥${combo}连击!`,'#e84393');
+            updateUI();
+            shakeTimer=8; shakeIntensity=2;
+            break;
+          }
+        }
+      } else {
+        spawnFloat(P.x,P.y-20,'不是客人要的菜!','#e17055');
+      }
+    }
+  }
+}
+
+// --- UI ---
+function updateUI(){
+  document.getElementById('s').textContent=score;
+  document.getElementById('t').textContent=time;
+  document.getElementById('o').textContent=orders;
+  document.getElementById('c').textContent=combo;
+}
+
+// ==================== DRAWING ====================
+function rrect(x,y,w,h,r,color){
+  cx.fillStyle=color;
+  cx.beginPath(); cx.roundRect(x-w/2,y-h/2,w,h,r); cx.fill();
+}
+
+function drawBg(){
+  // Pastel tile floor
+  const ts=40;
+  for(let x=0;x<W;x+=ts) for(let y=0;y<H;y+=ts){
+    const light = (Math.floor(x/ts)+Math.floor(y/ts))%2===0;
+    cx.fillStyle=light?'#fff5f9':'#fce4ec';
+    cx.fillRect(x,y,ts,ts);
+  }
+  // Subtle grid
+  cx.strokeStyle='rgba(248,187,208,0.3)'; cx.lineWidth=1;
+  for(let x=0;x<W;x+=ts){ cx.beginPath(); cx.moveTo(x,0); cx.lineTo(x,H); cx.stroke(); }
+  for(let y=0;y<H;y+=ts){ cx.beginPath(); cx.moveTo(0,y); cx.lineTo(W,y); cx.stroke(); }
+
+  // Zone labels
+  cx.font='10px "PingFang SC",sans-serif'; cx.fillStyle='rgba(0,0,0,0.12)'; cx.textAlign='center';
+  cx.fillText('🥬 食材区',100,30);
+  cx.fillText('🔪 加工区',300,30);
+  cx.fillText('🍳 烹饪区',520,30);
+  cx.fillText('🍲 煲汤区',700,210);
+  cx.fillText('🍽️ 出餐台',400,380);
+  cx.fillText('顾客等候区 →',100,420);
+}
+
+function drawStation(s){
+  // Shadow
+  cx.fillStyle='rgba(0,0,0,0.08)'; cx.beginPath();
+  cx.roundRect(s.x-s.w/2+3,s.y-s.h/2+3,s.w,s.h,14); cx.fill();
+
+  // Body
+  const g=cx.createLinearGradient(s.x-s.w/2,s.y-s.h/2,s.x+s.w/2,s.y+s.h/2);
+  g.addColorStop(0,s.color); g.addColorStop(1,'#ffffff');
+  cx.fillStyle=g; cx.beginPath();
+  cx.roundRect(s.x-s.w/2,s.y-s.h/2,s.w,s.h,14); cx.fill();
+
+  // Border
+  cx.strokeStyle='rgba(0,0,0,0.12)'; cx.lineWidth=2; cx.stroke();
+
+  // Icon
+  cx.font='26px serif'; cx.textAlign='center'; cx.textBaseline='middle';
+  cx.fillText(s.icon,s.x,s.y-6);
+
+  // Label
+  cx.font='bold 10px "PingFang SC",sans-serif'; cx.fillStyle='#2d3436';
+  cx.fillText(s.label,s.x,s.y+22);
+
+  // Progress / item
+  const ss = SS[s.id];
+  if(ss&&ss.busy){
+    const bw=s.w-10, bh=5, by=s.y+s.h/2-3;
+    cx.fillStyle='rgba(0,0,0,0.15)'; cx.fillRect(s.x-bw/2,by,bw,bh);
+    cx.fillStyle='#00b894'; cx.fillRect(s.x-bw/2,by,bw*ss.prog,bh);
+    if(ss.item){
+      cx.font='15px serif'; cx.fillStyle='#2d3436';
+      cx.fillText(ss.item.icon||'?',s.x,s.y-28);
+    }
+  }
+  if(ss&&!ss.busy&&ss.item){
+    cx.font='17px serif'; cx.fillStyle='#2d3436';
+    cx.fillText(ss.item.icon||'✅',s.x,s.y-28);
+    // Glow
+    cx.fillStyle='rgba(253,203,110,0.25)'; cx.beginPath();
+    cx.arc(s.x,s.y-26,14,0,Math.PI*2); cx.fill();
+  }
+}
+
+function drawPlayer(){
+  const p=P;
+  // Shadow
+  cx.fillStyle='rgba(0,0,0,0.18)'; cx.beginPath();
+  cx.ellipse(p.x,p.y+p.h/2-2,p.w/2.5,4,0,0,Math.PI*2); cx.fill();
+
+  // Body
+  const bg=cx.createRadialGradient(p.x-3,p.y-3,2,p.x,p.y,p.w/2);
+  bg.addColorStop(0,'#ffffff'); bg.addColorStop(0.8,'#f0e6f6'); bg.addColorStop(1,'#e8d5f0');
+  cx.fillStyle=bg; cx.beginPath(); cx.arc(p.x,p.y-2,p.w/2-2,0,Math.PI*2); cx.fill();
+
+  // Ears
+  cx.fillStyle='#ffffff';
+  cx.beginPath(); cx.ellipse(p.x-9,p.y-17,7,13,-0.3,0,Math.PI*2); cx.fill();
+  cx.strokeStyle='#e8d5f0'; cx.lineWidth=1; cx.stroke();
+  cx.beginPath(); cx.ellipse(p.x+9,p.y-17,7,13,0.3,0,Math.PI*2); cx.fill();
+  cx.stroke();
+
+  // Inner ears
+  cx.fillStyle='#fdcb6e';
+  cx.beginPath(); cx.ellipse(p.x-9,p.y-17,4,9,-0.3,0,Math.PI*2); cx.fill();
+  cx.beginPath(); cx.ellipse(p.x+9,p.y-17,4,9,0.3,0,Math.PI*2); cx.fill();
+
+  // Eyes
+  cx.fillStyle='#2d3436';
+  cx.beginPath(); cx.arc(p.x-5,p.y-6,2.5,0,Math.PI*2); cx.fill();
+  cx.beginPath(); cx.arc(p.x+5,p.y-6,2.5,0,Math.PI*2); cx.fill();
+  cx.fillStyle='#fff';
+  cx.beginPath(); cx.arc(p.x-4,p.y-7,1,0,Math.PI*2); cx.fill();
+  cx.beginPath(); cx.arc(p.x+6,p.y-7,1,0,Math.PI*2); cx.fill();
+
+  // Mouth
+  cx.strokeStyle='#e17055'; cx.lineWidth=1;
+  cx.beginPath(); cx.arc(p.x,p.y-1,3,0.1,Math.PI-0.1); cx.stroke();
+
+  // Blush
+  cx.fillStyle='rgba(253,121,168,0.4)';
+  cx.beginPath(); cx.arc(p.x-9,p.y-2,3,0,Math.PI*2); cx.fill();
+  cx.beginPath(); cx.arc(p.x+9,p.y-2,3,0,Math.PI*2); cx.fill();
+
+  // Held item
+  if(p.hold){
+    cx.fillStyle='rgba(253,203,110,0.3)'; cx.beginPath();
+    cx.arc(p.x,p.y-22,13,0,Math.PI*2); cx.fill();
+    cx.font='20px serif'; cx.textAlign='center';
+    cx.fillText(p.hold.icon||'📦',p.x,p.y-22);
+  }
+}
+
+function drawCustomer(c){
+  if(c.leaving){ c.leaveA+=0.04; if(c.leaveA>=1) return; }
+  const alpha = c.leaving?1-c.leaveA:1;
+  cx.globalAlpha=alpha;
+  const cx2=c.x, cy2=c.y;
+
+  // Shadow
+  cx.fillStyle='rgba(0,0,0,0.12)'; cx.beginPath();
+  cx.ellipse(cx2,cy2+22,17,5,0,0,Math.PI*2); cx.fill();
+
+  // Body
+  const bg=cx.createRadialGradient(cx2,cy2-5,3,cx2,cy2,17);
+  bg.addColorStop(0,'#ffffff'); bg.addColorStop(1,'#ffe0ec');
+  cx.fillStyle=bg; cx.beginPath(); cx.arc(cx2,cy2,17,0,Math.PI*2); cx.fill();
+
+  // Face
+  cx.font='22px serif'; cx.textAlign='center'; cx.textBaseline='middle';
+  cx.fillText(c.icon,cx2,cy2);
+
+  // Order bubble
+  cx.fillStyle='rgba(255,255,255,0.95)';
+  cx.strokeStyle=c.recipe.color; cx.lineWidth=2.5;
+  cx.beginPath(); cx.roundRect(cx2-32,cy2-52,64,26,12); cx.fill(); cx.stroke();
+  cx.fillStyle='#2d3436'; cx.font='12px serif';
+  cx.fillText(c.recipe.icon+' '+c.recipe.name,cx2,cy2-39);
+
+  // Patience bar
+  const bw=34, bh=4, by=cy2+24;
+  const ratio=c.patience/c.maxP;
+  cx.fillStyle='rgba(0,0,0,0.12)'; cx.fillRect(cx2-bw/2,by,bw,bh);
+  cx.fillStyle=ratio>0.5?'#00b894':ratio>0.25?'#fdcb6e':'#e17055';
+  cx.fillRect(cx2-bw/2,by,bw*ratio,bh);
+
+  // Name
+  cx.fillStyle='#636e72'; cx.font='9px "PingFang SC",sans-serif';
+  cx.fillText(c.name,cx2,cy2+34);
+
+  cx.globalAlpha=1;
+}
+
+function drawParts(){
+  for(const p of parts){
+    cx.globalAlpha=p.life;
+    cx.fillStyle=p.color;
+    cx.beginPath(); cx.arc(p.x,p.y,p.size,0,Math.PI*2); cx.fill();
+  }
+  cx.globalAlpha=1;
+}
+
+function drawFloats(){
+  for(const f of floats){
+    cx.globalAlpha=f.life;
+    cx.fillStyle=f.color; cx.font='bold 14px "PingFang SC",sans-serif';
+    cx.textAlign='center'; cx.fillText(f.text,f.x,f.y-f.life*20);
+  }
+  cx.globalAlpha=1;
+}
+
+function drawHUD(){
+  if(P.hold){
+    cx.fillStyle='rgba(0,0,0,0.7)'; cx.beginPath();
+    cx.roundRect(W-115,8,107,34,10); cx.fill();
+    cx.fillStyle='#fff'; cx.font='13px "PingFang SC",sans-serif'; cx.textAlign='right';
+    cx.fillText(`手持: ${P.hold.icon||''} ${P.hold.name||''}`,W-16,30);
+  }
+  cx.fillStyle='rgba(0,0,0,0.4)'; cx.font='10px "PingFang SC",sans-serif'; cx.textAlign='center';
+  cx.fillText('WASD/方向键 移动 | 空格 交互 | 食材→切菜→烹饪→出餐',W/2,H-6);
+}
+
+function drawOverlay(){
+  if(gs===S.MENU){
+    cx.fillStyle='rgba(0,0,0,0.55)'; cx.fillRect(0,0,W,H);
+    rrect(W/2,H/2,370,290,20,'rgba(255,255,255,0.97)');
+
+    cx.fillStyle='#e84393'; cx.font='bold 28px "PingFang SC",sans-serif'; cx.textAlign='center';
+    cx.fillText('🎀 玉桂狗厨房',W/2,H/2-100);
+    cx.fillStyle='#636e72'; cx.font='13px "PingFang SC",sans-serif';
+    cx.fillText('Cinnamoroll Kitchen · 胡闹厨房风格',W/2,H/2-70);
+
+    cx.fillStyle='#2d3436'; cx.font='14px "PingFang SC",sans-serif';
+    cx.fillText('帮玉桂狗做出客人想要的菜式!',W/2,H/2-30);
+    cx.fillText('🥬 拿食材 → 🔪 切菜 → 🍳/🍲 烹饪 → 🍽️ 上菜',W/2,H/2-5);
+    cx.fillText('⬆️⬇️⬅️➡️ 移动 | 空格键 交互',W/2,H/2+20);
+    cx.fillText('⚠️ 客人耐心有限, 尽快出餐!',W/2,H/2+45);
+
+    // Start button
+    cx.fillStyle='#6c5ce7'; cx.beginPath();
+    cx.roundRect(W/2-75,H/2+65,150,44,22); cx.fill();
+    cx.fillStyle='#fff'; cx.font='bold 18px "PingFang SC",sans-serif';
+    cx.fillText('🎮 开始游戏',W/2,H/2+87);
+  }
+
+  if(gs===S.OVER){
+    cx.fillStyle='rgba(0,0,0,0.55)'; cx.fillRect(0,0,W,H);
+    rrect(W/2,H/2,330,240,20,'rgba(255,255,255,0.97)');
+
+    cx.fillStyle='#e84393'; cx.font='bold 26px "PingFang SC",sans-serif'; cx.textAlign='center';
+    cx.fillText('⏰ 时间到!',W/2,H/2-80);
+    cx.fillStyle='#2d3436'; cx.font='17px "PingFang SC",sans-serif';
+    cx.fillText(`⭐ 得分: ${score}`,W/2,H/2-40);
+    cx.fillText(`📋 完成订单: ${orders}`,W/2,H/2-12);
+    cx.fillText(`🔥 最高连击: ${combo}`,W/2,H/2+16);
+
+    // Stars rating
+    const stars = orders>=8?'⭐⭐⭐':orders>=5?'⭐⭐':'⭐';
+    cx.font='30px serif'; cx.fillText(stars,W/2,H/2+50);
+
+    // Restart
+    cx.fillStyle='#6c5ce7'; cx.beginPath();
+    cx.roundRect(W/2-75,H/2+72,150,44,22); cx.fill();
+    cx.fillStyle='#fff'; cx.font='bold 18px "PingFang SC",sans-serif';
+    cx.fillText('🔄 再来一局',W/2,H/2+94);
+  }
+}
+
+function draw(){
+  cx.clearRect(0,0,W,H);
+
+  // Screen shake
+  let sx=0,sy=0;
+  if(shakeTimer>0){ sx=(Math.random()-.5)*shakeIntensity; sy=(Math.random()-.5)*shakeIntensity; }
+  cx.save(); cx.translate(sx,sy);
+
+  drawBg();
+  for(const s of STATIONS) drawStation(s);
+  for(const c of customers) drawCustomer(c);
+  drawPlayer();
+  drawParts();
+  drawFloats();
+  drawHUD();
+
+  cx.restore();
+  drawOverlay();
+}
+
+// ==================== UPDATE ====================
+function update(){
+  if(gs!==S.PLAY) return;
+
+  // Movement
+  let dx=0,dy=0;
+  if(K['ArrowUp']||K['w']||K['W']) dy=-1;
+  if(K['ArrowDown']||K['s']||K['S']) dy=1;
+  if(K['ArrowLeft']||K['a']||K['A']) dx=-1;
+  if(K['ArrowRight']||K['d']||K['D']) dx=1;
+  if(dx&&dy){dx*=.707;dy*=.707;}
+  P.x+=dx*P.spd; P.y+=dy*P.spd;
+  if(dy<0) P.face=2; else if(dy>0) P.face=0;
+  if(dx<0) P.face=1; else if(dx>0) P.face=3;
+  if(dx||dy){ P.at++; if(P.at>8){P.at=0;P.af=(P.af+1)%4;} }
+  P.x=Math.max(P.w/2,Math.min(W-P.w/2,P.x));
+  P.y=Math.max(P.h/2,Math.min(H-P.h/2,P.y));
+
+  // Action
+  if(K[' ']||K['Space']) doAction();
+  if(actCd>0) actCd--;
+
+  // Process
+  processStation('chop'); processStation('stove'); processStation('pot');
+
+  // Spawn
+  spawnT++;
+  if(spawnT>280){ spawnT=0; spawnCust(); }
+
+  // Customer patience
+  for(const c of customers){
+    if(!c.served&&!c.leaving){
+      c.patience-=.015;
+      if(c.patience<=0){ c.leaving=true; combo=0; spawnParts(c.x,c.y,'#e17055',10); spawnFloat(c.x,c.y-20,'走了!','#e17055'); updateUI(); }
+    }
+  }
+  customers=customers.filter(c=>c.leaveA<1||!c.leaving);
+
+  // Particles
+  for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.life-=p.decay; }
+  parts=parts.filter(p=>p.life>0);
+
+  // Floats
+  for(const f of floats){ f.y-=0.5; f.life-=f.decay; }
+  floats=floats.filter(f=>f.life>0);
+
+  // Shake
+  if(shakeTimer>0) shakeTimer--;
+}
+
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+
+// ==================== TIMER ====================
+function startTimer(){
+  ti=setInterval(()=>{
+    if(gs!==S.PLAY) return;
+    time--; updateUI();
+    if(time<=0){ gs=S.OVER; clearInterval(ti); updateUI(); }
+  },1000);
+}
+
+// ==================== START ====================
+function startGame(){
+  score=0; orders=0; combo=0; time=180;
+  P.x=400; P.y=380; P.hold=null;
+  customers=[]; parts=[]; floats=[];
+  spawnT=0; actCd=0; shakeTimer=0;
+  SS.chop={busy:false,prog:0,item:null};
+  SS.stove={busy:false,prog:0,item:null};
+  SS.pot={busy:false,prog:0,item:null};
+  gs=S.PLAY; updateUI();
+  if(ti) clearInterval(ti);
+  startTimer();
+  spawnCust();
+}
+
+// ==================== CLICK ====================
+cv.addEventListener('click',e=>{
+  const r=cv.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(W/r.width);
+  const my=(e.clientY-r.top)*(H/r.height);
+  if(gs===S.MENU && mx>W/2-75 && mx<W/2+75 && my>H/2+65 && my<H/2+109) startGame();
+  if(gs===S.OVER && mx>W/2-75 && mx<W/2+75 && my>H/2+72 && my<H/2+116) startGame();
+});
+cv.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect();
+  const mx=(e.touches[0].clientX-r.left)*(W/r.width);
+  const my=(e.touches[0].clientY-r.top)*(H/r.height);
+  if(gs===S.MENU && mx>W/2-75 && mx<W/2+75 && my>H/2+65 && my<H/2+109) startGame();
+  if(gs===S.OVER && mx>W/2-75 && mx<W/2+75 && my>H/2+72 && my<H/2+116) startGame();
+});
+
+updateUI(); loop();
+</script>
+</body>
+</html>
