@@ -1,6 +1,6 @@
-# GitHub Upload Test
+# GitHub Upload Test (Updated)
 
-This file was uploaded via the github-upload skill.
+This file was **updated** via the github-upload skill.
 
-Uploaded at: 2026-06-05T08:56:01Z
+Updated at: 2026-06-05T08:56:13Z
 
